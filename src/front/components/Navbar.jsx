@@ -1,19 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
 
+	const location = useLocation();
+  	const isAdminsPage = location.pathname.startsWith("/admins-user");
+
 	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
+		<nav className="navbar">
+			<div className="text-center mt-5">
+
+			{!isAdminsPage && (
+				<Link to="/admins-user" className="btn btn-success btn-lg m-2">
+				Admins
 				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
+			)}
+
 			</div>
 		</nav>
 	);
-};
+	};
