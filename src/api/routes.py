@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User,AdminUser
+from api.models import db, AdminUser, Ubication
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 
@@ -88,3 +88,67 @@ def delete_user(admin_user_id):
     db.session.commit() 
     
     return jsonify({"msg": "Admin deleted"}), 200
+
+
+#ver todas las ubicaciones
+@api.route('/ubications', methods=['GET'])
+def get_ubications():
+    ubications = Ubication.query.all()
+    return jsonify([u.serialize() for u in ubications]), 200
+
+#ver una ubicacion
+@api.route('/ubications/<int:ubication_id>', methods=['GET'])
+def get_ubication(ubication_id):
+    u = Ubication.query.get(ubication_id)
+    if not u:
+        return jsonify({"msg": "Ubication not found"}), 404
+    return jsonify(u.serialize()), 200
+
+#crear ubicacion
+@api.route('/ubications', methods=['POST'])
+def create_ubication():
+    data = request.json
+    required_fields = ["country", "city", "zip_code", "street", "number"]
+
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"msg": f"Missing field: {field}"}), 400
+
+    new_ub = Ubication(
+        country=data["country"],
+        city=data["city"],
+        zip_code=data["zip_code"],
+        street=data["street"],
+        number=data["number"]
+    )
+    db.session.add(new_ub)
+    db.session.commit()
+    return jsonify(new_ub.serialize()), 201
+
+#actualizar ubicacion
+@api.route('/ubications/<int:ubication_id>', methods=['PUT'])
+def update_ubication(ubication_id):
+    u = Ubication.query.get(ubication_id)
+    if not u:
+        return jsonify({"msg": "Ubication not found"}), 404
+
+    data = request.json
+    u.country = data.get("country", u.country)
+    u.city = data.get("city", u.city)
+    u.zip_code = data.get("zip_code", u.zip_code)
+    u.street = data.get("street", u.street)
+    u.number = data.get("number", u.number)
+
+    db.session.commit()
+    return jsonify(u.serialize()), 200
+
+#eliminar ubicacion
+@api.route('/ubications/<int:ubication_id>', methods=['DELETE'])
+def delete_ubication(ubication_id):
+    u = Ubication.query.get(ubication_id)
+    if not u:
+        return jsonify({"msg": "Ubication not found"}), 404
+
+    db.session.delete(u)
+    db.session.commit()
+    return jsonify({"msg": "Ubication deleted"}), 200
