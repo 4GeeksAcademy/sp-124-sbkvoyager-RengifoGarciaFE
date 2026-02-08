@@ -30,3 +30,21 @@ class AdminUser(db.Model):
             "id": self.id,
             "email": self.email
         }
+    
+class Ubication(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    country: Mapped[str] = mapped_column(nullable=False)
+    city: Mapped[str] = mapped_column(nullable=False)
+    zip_code: Mapped[int] = mapped_column(nullable=False)
+    street: Mapped[str] = mapped_column(nullable=False)
+    number: Mapped[int] = mapped_column(nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "country": self.country,
+            "city": self.city,
+            "zip_code": self.zip_code,
+            "street": self.street,
+            "number": self.number
+        }
