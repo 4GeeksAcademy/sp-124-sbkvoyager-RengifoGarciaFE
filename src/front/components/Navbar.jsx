@@ -5,6 +5,7 @@ export const Navbar = () => {
 
   const isAdminsPage = location.pathname.startsWith("/admins-user");
   const isUbicationsPage = location.pathname.startsWith("/ubications");
+  const isUsersPage = location.pathname.startsWith("/users");
 
   return (
     <nav className="navbar">
@@ -22,7 +23,14 @@ export const Navbar = () => {
           </Link>
         )}
 
+        {!isUsersPage && (
+          <Link to="/users" className="btn btn-warning btn-lg m-2">
+            Users
+          </Link>
+        )}
+
       </div>
     </nav>
   );
 };
+
