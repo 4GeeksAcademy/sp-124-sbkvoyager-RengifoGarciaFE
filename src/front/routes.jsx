@@ -17,6 +17,10 @@ import UbicationsPage from "./pages/ubications/UbicationsPage";
 import UsersPage from "./pages/users/UsersPage";
 import UserFormPage from "./pages/users/UserFormPage";
 import UserDetailPage from "./pages/users/UserDetailPage";
+import PostsPage from "./pages/posts/PostsPage";
+import PostFormPage from "./pages/posts/PostFormPage";
+import PostDetailPage from "./pages/posts/PostDetailPage";
+
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,7 +47,12 @@ export const router = createBrowserRouter(
       <Route path="/users/new" element={<UserFormPage />} />
       <Route path="/users/:id/edit" element={<UserFormPage />} />
       <Route path="/users/:id" element={<UserDetailPage />} />
+      <Route path="/posts" element={<PostsPage />} />
+      <Route path="/posts/new" element={<PostFormPage />} />
+      <Route path="/posts/:id/edit" element={<PostFormPage />} />
+      <Route path="/posts/:id" element={<PostDetailPage />} />
       <Route path="/demo" element={<Demo />} />
+      
     </Route>
   )
 );

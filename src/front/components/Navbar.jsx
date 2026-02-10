@@ -6,6 +6,7 @@ export const Navbar = () => {
   const isAdminsPage = location.pathname.startsWith("/admins-user");
   const isUbicationsPage = location.pathname.startsWith("/ubications");
   const isUsersPage = location.pathname.startsWith("/users");
+  const isPostsPage = location.pathname.startsWith("/posts");
 
   return (
     <nav className="navbar">
@@ -29,8 +30,13 @@ export const Navbar = () => {
           </Link>
         )}
 
+        {!isPostsPage && (
+          <Link to="/posts" className="btn btn-info btn-lg m-2">
+            Posts
+          </Link>
+        )}
+
       </div>
     </nav>
   );
 };
-
