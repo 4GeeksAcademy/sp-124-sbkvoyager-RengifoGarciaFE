@@ -69,3 +69,44 @@ class User(db.Model):
             "is_professional_dancer": self.is_professional_dancer,
             "ubication": self.ubication.serialize() if self.ubication else None
         }
+
+
+class Post(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(
+        String(10), nullable=False)
+    event_date: Mapped[date] = mapped_column(Date, nullable=False)
+    schedule: Mapped[str] = mapped_column(
+        String(15), nullable=False)
+    styles: Mapped[str] = mapped_column(String(120),nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    contact_number: Mapped[int] = mapped_column(nullable=False)
+    owner_name: Mapped[str] = mapped_column(
+        String(120), nullable=False)
+    description: Mapped[str] = mapped_column(
+        String(120), nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "type": self.type,
+            "event_date": self.event_date.isoformat(),
+            "schedule": self.schedule,
+            "styles": self.styles,
+            "name": self.name,
+            "contact_number":self.contact_number,
+            "owner_name": self.owner_name,
+            "description": self.description
+        }
+
+class Comment(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    text: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    puntuation: Mapped[int] = mapped_column(nullable=False)
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "texto": self.text,
+            "puntuacion": self.puntuation
+        }

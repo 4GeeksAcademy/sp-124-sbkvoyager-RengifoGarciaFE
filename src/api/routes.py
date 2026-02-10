@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, AdminUser, Ubication
+from api.models import db, User, AdminUser, Ubication, Post, Comment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import date
@@ -272,3 +272,135 @@ def delete_ubication(ubication_id):
     db.session.delete(u)
     db.session.commit()
     return jsonify({"msg": "Ubication deleted"}), 200
+
+# Ver todos los posts
+@api.route('/posts', methods=['GET'])
+def get_posts():
+    posts = Post.query.all()
+    return jsonify([p.serialize() for p in posts]), 200
+
+# Ver un post por id
+@api.route('/posts/<int:post_id>', methods=['GET'])
+def get_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+    return jsonify(post.serialize()), 200
+
+# Crear un post
+@api.route('/posts', methods=['POST'])
+def create_post():
+    data = request.json
+    required_fields = ["type", "event_date", "schedule", "styles", "name", "contact_number", "owner_name", "description"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"msg": f"Missing field: {field}"}), 400
+
+    try:
+        new_post = Post(
+            type=data["type"],
+            event_date=date.fromisoformat(data["event_date"]),
+            schedule=data["schedule"],
+            styles=data["styles"],
+            name=data["name"],
+            contact_number=data["contact_number"],
+            owner_name=data["owner_name"],
+            description=data["description"]
+        )
+    except Exception as e:
+        return jsonify({"msg": f"Error: {str(e)}"}), 400
+
+    db.session.add(new_post)
+    db.session.commit()
+    return jsonify(new_post.serialize()), 201
+
+# Editar un post
+@api.route('/posts/<int:post_id>', methods=['PUT'])
+def update_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    data = request.json
+    post.type = data.get("type", post.type)
+    if "event_date" in data:
+        post.event_date = date.fromisoformat(data["event_date"])
+    post.schedule = data.get("schedule", post.schedule)
+    post.styles = data.get("styles", post.styles)
+    post.name = data.get("name", post.name)
+    post.contact_number = data.get("contact_number", post.contact_number)
+    post.owner_name = data.get("owner_name", post.owner_name)
+    post.description = data.get("description", post.description)
+
+    db.session.commit()
+    return jsonify(post.serialize()), 200
+
+# Eliminar un post
+@api.route('/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({"msg": "Post deleted"}), 200
+
+
+# Ver todos los comentarios
+@api.route('/comments', methods=['GET'])
+def get_comments():
+    comments = Comment.query.all()
+    return jsonify([c.serialize() for c in comments]), 200
+
+# Ver un comentario por id
+@api.route('/comments/<int:comment_id>', methods=['GET'])
+def get_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({"msg": "Comentario no encontrado"}), 404
+    return jsonify(comment.serialize()), 200
+
+# Crear un comentario
+@api.route('/comments', methods=['POST'])
+def create_comment():
+    data = request.json
+    required_fields = ["text", "puntuation"]
+    
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"msg": f"Falta el campo: {field}"}), 400
+    
+    new_comment = Comment(
+        text=data["text"],
+        puntuation=data["puntuation"]
+    )
+    db.session.add(new_comment)
+    db.session.commit()
+    
+    return jsonify(new_comment.serialize()), 201
+
+# Editar un comentario
+@api.route('/comments/<int:comment_id>', methods=['PUT'])
+def update_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({"msg": "Comentario no encontrado"}), 404
+    
+    data = request.json
+    comment.text = data.get("text", comment.text)
+    comment.puntuation = data.get("puntuation", comment.puntuation)
+    
+    db.session.commit()
+    return jsonify(comment.serialize()), 200
+
+# Eliminar un comentario
+@api.route('/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({"msg": "Comentario no encontrado"}), 404
+    
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({"msg": "Comentario eliminado"}), 200
