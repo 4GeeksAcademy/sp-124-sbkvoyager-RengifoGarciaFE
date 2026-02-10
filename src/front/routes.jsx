@@ -12,6 +12,8 @@ import { Demo } from "./pages/Demo";
 import AdminsPage from "./pages/admins/AdminsPage";
 import AdminDetailPage from "./pages/admins/AdminDetailPage";
 import AdminFormPage from "./pages/admins/AdminFormPage";
+import UbicationFormPage from "./pages/ubications/UbicationFormPage";
+import UbicationsPage from "./pages/ubications/UbicationsPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +33,9 @@ export const router = createBrowserRouter(
       <Route path="/admins-user/:id" element={<AdminDetailPage />} />
       <Route path="/admins-user/new" element={<AdminFormPage />} />
       <Route path="/admins-user/:id/edit" element={<AdminFormPage />} />
+      <Route path="/ubications" element={<UbicationsPage />} />
+      <Route path="/ubications/new" element={<UbicationFormPage />} />
+      <Route path="/ubications/:id/edit" element={<UbicationFormPage />} />
       <Route path="/demo" element={<Demo />} />
     </Route>
   )
