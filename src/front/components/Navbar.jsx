@@ -1,21 +1,28 @@
 import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
+  const location = useLocation();
 
-	const location = useLocation();
-  	const isAdminsPage = location.pathname.startsWith("/admins-user");
+  const isAdminsPage = location.pathname.startsWith("/admins-user");
+  const isUbicationsPage = location.pathname.startsWith("/ubications");
 
-	return (
-		<nav className="navbar">
-			<div className="text-center mt-5">
+  return (
+    <nav className="navbar">
+      <div className="text-center mt-5">
 
-			{!isAdminsPage && (
-				<Link to="/admins-user" className="btn btn-success btn-lg m-2">
-				Admins
-				</Link>
-			)}
+        {!isAdminsPage && (
+          <Link to="/admins-user" className="btn btn-success btn-lg m-2">
+            Admins
+          </Link>
+        )}
 
-			</div>
-		</nav>
-	);
-	};
+        {!isUbicationsPage && (
+          <Link to="/ubications" className="btn btn-primary btn-lg m-2">
+            Ubications
+          </Link>
+        )}
+
+      </div>
+    </nav>
+  );
+};
