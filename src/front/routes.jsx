@@ -20,7 +20,9 @@ import UserDetailPage from "./pages/users/UserDetailPage";
 import PostsPage from "./pages/posts/PostsPage";
 import PostFormPage from "./pages/posts/PostFormPage";
 import PostDetailPage from "./pages/posts/PostDetailPage";
-
+import CommentsPage from "./pages/comments/CommentsPage";
+import CommentFormPage from "./pages/comments/CommentFormPage";
+import CommentDetailPage from "./pages/comments/CommentDetailPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -51,6 +53,10 @@ export const router = createBrowserRouter(
       <Route path="/posts/new" element={<PostFormPage />} />
       <Route path="/posts/:id/edit" element={<PostFormPage />} />
       <Route path="/posts/:id" element={<PostDetailPage />} />
+      <Route path="/comments" element={<CommentsPage />} />
+      <Route path="/comments/new" element={<CommentFormPage />} />
+      <Route path="/comments/:id/edit" element={<CommentFormPage />} />
+      <Route path="/comments/:id" element={<CommentDetailPage />} />
       <Route path="/demo" element={<Demo />} />
       
     </Route>
