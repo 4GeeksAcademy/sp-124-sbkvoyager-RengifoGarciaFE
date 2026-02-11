@@ -11,6 +11,15 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_cors import CORS
+from api.models import (
+    db,
+    AdminUser,
+    User,
+    Ubication,
+    Post,
+    Comment,
+    ImagePost
+)
 
 
 # from models import Person
@@ -73,3 +82,5 @@ def serve_any_other_file(path):
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
+
+print("DATABASE_URL =", app.config["SQLALCHEMY_DATABASE_URI"])

@@ -110,3 +110,13 @@ class Comment(db.Model):
             "texto": self.text,
             "puntuacion": self.puntuation
         }
+    
+class ImagePost(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    url: Mapped[str] = mapped_column(db.String(255), nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "url": self.url
+        }
