@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, AdminUser, Ubication, Post, Comment
+from api.models import db, User, AdminUser, Ubication, Post, Comment, ImagePost
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import date
@@ -404,3 +404,54 @@ def delete_comment(comment_id):
     db.session.delete(comment)
     db.session.commit()
     return jsonify({"msg": "Comentario eliminado"}), 200
+
+# Obtener todas las imágenes
+@api.route('/images-post', methods=['GET'])
+def get_images():
+    images = ImagePost.query.all()
+    return jsonify([image.serialize() for image in images]), 200
+
+# Obtener una imagen por ID
+@api.route('/images-post/<int:image_id>', methods=['GET'])
+def get_image(image_id):
+    image = ImagePost.query.get(image_id)
+    if not image:
+        return jsonify({"msg": "Image not found"}), 404
+    return jsonify(image.serialize()), 200
+
+# Crear una nueva imagen
+@api.route('/images-post', methods=['POST'])
+def create_image():
+    data = request.json
+    if "url" not in data:
+        return jsonify({"msg": "Missing field: url"}), 400
+
+    new_image = ImagePost(url=data["url"])
+    db.session.add(new_image)
+    db.session.commit()
+
+    return jsonify(new_image.serialize()), 201
+
+# Actualizar una imagen existente
+@api.route('/images-post/<int:image_id>', methods=['PUT'])
+def update_image(image_id):
+    image = ImagePost.query.get(image_id)
+    if not image:
+        return jsonify({"msg": "Image not found"}), 404
+
+    data = request.json
+    image.url = data.get("url", image.url)
+    db.session.commit()
+
+    return jsonify(image.serialize()), 200
+
+# Eliminar una imagen
+@api.route('/images-post/<int:image_id>', methods=['DELETE'])
+def delete_image(image_id):
+    image = ImagePost.query.get(image_id)
+    if not image:
+        return jsonify({"msg": "Image not found"}), 404
+
+    db.session.delete(image)
+    db.session.commit()
+    return jsonify({"msg": "Image deleted"}), 200

@@ -7,6 +7,7 @@ export const Navbar = () => {
   const isUbicationsPage = location.pathname.startsWith("/ubications");
   const isUsersPage = location.pathname.startsWith("/users");
   const isPostsPage = location.pathname.startsWith("/posts");
+   const isImagesPage = location.pathname.startsWith("/images-post");
 
   return (
     <nav className="navbar">
@@ -33,6 +34,12 @@ export const Navbar = () => {
         {!isPostsPage && (
           <Link to="/posts" className="btn btn-info btn-lg m-2">
             Posts
+          </Link>
+        )}
+        
+        {!isImagesPage && (
+          <Link to="/images-post" className="btn btn-dark btn-lg m-2">
+            Images
           </Link>
         )}
 

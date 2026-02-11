@@ -1,79 +1,70 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function UsersPage() {
-    const [users, setUsers] = useState([]);
+export default function ImagesPage() {
+    const [images, setImages] = useState([]);
     const navigate = useNavigate();
 
-    const fetchUsers = async () => {
-        const res = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/users`
-        );
+    const fetchImages = async () => {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/images-post`);
         const data = await res.json();
-        setUsers(data);
+        setImages(data);
     };
 
     useEffect(() => {
-        fetchUsers();
+        fetchImages();
     }, []);
 
-    const deleteUser = async (id) => {
-        if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
+    const deleteImage = async (id) => {
+        if (!window.confirm("¿Seguro que quieres eliminar esta imagen?")) return;
 
-        const res = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`,
-            { method: "DELETE" }
-        );
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/images-post/${id}`, {
+            method: "DELETE"
+        });
 
         if (res.ok) {
-            fetchUsers();
+            fetchImages();
         }
     };
 
     return (
         <div className="container mt-4">
-            {/* Header */}
             <div className="position-relative my-4">
-                <h1 className="text-center m-0">USERS</h1>
+                <h1 className="text-center m-0">IMÁGENES</h1>
 
                 <button
                     className="btn btn-success position-absolute top-50 end-0 translate-middle-y"
-                    onClick={() => navigate("/users/new")}
+                    onClick={() => navigate("/images-post/new")}
                 >
-                    Crear Usuario
+                    Crear Imagen
                 </button>
             </div>
 
-            {/* Listado */}
             <div className="row">
-                {users.map((u) => (
-                    <div key={u.id} className="col-md-4">
+                {images.map((img) => (
+                    <div key={img.id} className="col-md-4">
                         <div className="card mb-3 shadow-sm">
-                            <div className="card-body">
-                                <p className="card-text text-center fw-bold">
-                                    {u.nickname}
-                                </p>
+                            <div className="card-body text-center">
+                                <img src={img.url} alt={`Image ${img.id}`} className="img-fluid mb-2" />
 
                                 <div className="d-flex justify-content-center gap-2 flex-wrap">
-                                    <Link
-                                        to={`/users/${u.id}`}
+                                    <button
                                         className="btn btn-light"
+                                        onClick={() => navigate(`/images-post/${img.id}`)}
                                     >
                                         Ver ficha
-                                    </Link>
+                                    </button>
 
                                     <button
                                         className="btn btn-light"
-                                        onClick={() =>
-                                            navigate(`/users/${u.id}/edit`)
-                                        }
+                                        onClick={() => navigate(`/images-post/${img.id}/edit`)}
                                     >
                                         Editar
                                     </button>
 
                                     <button
                                         className="btn btn-danger"
-                                        onClick={() => deleteUser(u.id)}
+                                        onClick={() => deleteImage(img.id)}
                                     >
                                         Eliminar
                                     </button>
@@ -83,17 +74,17 @@ export default function UsersPage() {
                     </div>
                 ))}
 
-                {users.length === 0 && (
+                {images.length === 0 && (
                     <p className="text-center mt-5 text-muted">
-                        No hay usuarios creados
+                        No hay imágenes creadas
                     </p>
                 )}
             </div>
 
             <div className="text-center mt-4 mb-5">
-                <Link to="/" className="btn btn-secondary btn-lg">
+                <button className="btn btn-secondary btn-lg" onClick={() => navigate("/")}>
                     Volver a inicio
-                </Link>
+                </button>
             </div>
         </div>
     );

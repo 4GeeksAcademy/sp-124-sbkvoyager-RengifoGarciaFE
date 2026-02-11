@@ -13,6 +13,7 @@ import AdminsPage from "./pages/admins/AdminsPage";
 import AdminDetailPage from "./pages/admins/AdminDetailPage";
 import AdminFormPage from "./pages/admins/AdminFormPage";
 import UbicationFormPage from "./pages/ubications/UbicationFormPage";
+import UbicationDetailPage from "./pages/ubications/UbicationDetailPage";
 import UbicationsPage from "./pages/ubications/UbicationsPage";
 import UsersPage from "./pages/users/UsersPage";
 import UserFormPage from "./pages/users/UserFormPage";
@@ -20,7 +21,9 @@ import UserDetailPage from "./pages/users/UserDetailPage";
 import PostsPage from "./pages/posts/PostsPage";
 import PostFormPage from "./pages/posts/PostFormPage";
 import PostDetailPage from "./pages/posts/PostDetailPage";
-
+import ImagesPage from "./pages/images/ImagesPage";
+import ImageFormPage from "./pages/images/ImageFormPage";
+import ImageDetailPage from "./pages/images/ImageDetailPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -41,6 +44,7 @@ export const router = createBrowserRouter(
       <Route path="/admins-user/new" element={<AdminFormPage />} />
       <Route path="/admins-user/:id/edit" element={<AdminFormPage />} />
       <Route path="/ubications" element={<UbicationsPage />} />
+      <Route path="/ubications/:id" element={<UbicationDetailPage />} />
       <Route path="/ubications/new" element={<UbicationFormPage />} />
       <Route path="/ubications/:id/edit" element={<UbicationFormPage />} />
       <Route path="/users" element={<UsersPage />} />
@@ -52,7 +56,10 @@ export const router = createBrowserRouter(
       <Route path="/posts/:id/edit" element={<PostFormPage />} />
       <Route path="/posts/:id" element={<PostDetailPage />} />
       <Route path="/demo" element={<Demo />} />
-      
+      <Route path="/images-post" element={<ImagesPage />} />
+      <Route path="/images-post/new" element={<ImageFormPage />} />
+      <Route path="/images-post/:id/edit" element={<ImageFormPage />} />
+      <Route path="/images-post/:id" element={<ImageDetailPage />} />
     </Route>
   )
 );

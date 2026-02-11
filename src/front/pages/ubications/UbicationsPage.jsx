@@ -24,10 +24,10 @@ const UbicationsPage = () => {
 
     return (
         <div className="container mt-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>UBICATIONS</h1>
+            <div className="position-relative my-4">
+                <h1 className="text-center m-0">UBICATIONS</h1>
 
-                <Link to="/ubications/new" className="btn btn-success">
+                <Link to="/ubications/new" className="btn btn-success position-absolute top-50 end-0 translate-middle-y">
                     Crear Ubicación
                 </Link>
             </div>
@@ -41,13 +41,19 @@ const UbicationsPage = () => {
                                 <p className="mb-1">{u.country}</p>
                                 <p className="mb-3">CP: {u.zip_code}</p>
 
-                                <Link to={`/ubications/${u.id}/edit`} className="btn btn-light me-2">
-                                    Editar
-                                </Link>
+                                <div className="d-flex justify-content-center gap-2 flex-wrap">
+                                    <Link to={`/ubications/${u.id}`} className="btn btn-light">
+                                        Ver ficha
+                                    </Link>
 
-                                <button className="btn btn-danger" onClick={() => deleteUbication(u.id)}>
-                                    Eliminar
-                                </button>
+                                    <Link to={`/ubications/${u.id}/edit`} className="btn btn-light">
+                                        Editar
+                                    </Link>
+
+                                    <button className="btn btn-danger" onClick={() => deleteUbication(u.id)}>
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
