@@ -80,7 +80,7 @@ class Post(db.Model):
         String(15), nullable=False)
     styles: Mapped[str] = mapped_column(String(120),nullable=False)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    contact_number: Mapped[int] = mapped_column(nullable=False)
+    contact_number: Mapped[str] = mapped_column(String(20),nullable=False)
     owner_name: Mapped[str] = mapped_column(
         String(120), nullable=False)
     description: Mapped[str] = mapped_column(
