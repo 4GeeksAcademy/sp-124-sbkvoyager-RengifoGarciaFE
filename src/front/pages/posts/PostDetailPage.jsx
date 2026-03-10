@@ -31,6 +31,8 @@ export default function PostDetailPage() {
           <p><strong>Teléfono de contacto:</strong> {post.contact_number}</p>
           <p><strong>Propietario:</strong> {post.owner_name}</p>
           <p><strong>Descripción:</strong> {post.description}</p>
+          <p><strong>Usuario:</strong> {post.user?.nickname}</p>
+
 
           <Link to="/posts" className="btn btn-secondary mt-3">
             Volver a Posts

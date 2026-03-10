@@ -6,6 +6,8 @@ export default function UserFormPage() {
     const navigate = useNavigate();
     const isEdit = Boolean(id);
 
+    const [ubications, setUbications] = useState([]);
+
     const [form, setForm] = useState({
         nickname: "",
         email: "",
@@ -18,6 +20,11 @@ export default function UserFormPage() {
     });
 
     useEffect(() => {
+        // 🔹 cargar ubicaciones
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ubications`)
+            .then(res => res.json())
+            .then(data => setUbications(data));
+
         if (isEdit) {
             fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`)
                 .then(res => res.json())
@@ -38,7 +45,10 @@ export default function UserFormPage() {
 
     const handleChange = e => {
         const { name, value, type, checked } = e.target;
-        setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+        setForm({
+            ...form,
+            [name]: type === "checkbox" ? checked : value
+        });
     };
 
     const handleSubmit = async e => {
@@ -70,16 +80,78 @@ export default function UserFormPage() {
                 className="card p-4 shadow mx-auto"
                 style={{ maxWidth: "500px" }}
             >
-                <input className="form-control mb-3" name="nickname" placeholder="Nickname" value={form.nickname} onChange={handleChange} required />
-                <input className="form-control mb-3" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+                <input
+                    className="form-control mb-3"
+                    name="nickname"
+                    placeholder="Nickname"
+                    value={form.nickname}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    className="form-control mb-3"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                />
 
                 {!isEdit && (
-                    <input className="form-control mb-3" type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+                    <input
+                        className="form-control mb-3"
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
                 )}
 
-                <input className="form-control mb-3" name="name" placeholder="Nombre" value={form.name} onChange={handleChange} required />
-                <input className="form-control mb-3" name="surname" placeholder="Apellidos" value={form.surname} onChange={handleChange} required />
-                <input className="form-control mb-3" type="date" name="birthdate" value={form.birthdate} onChange={handleChange} required />
+                <input
+                    className="form-control mb-3"
+                    name="name"
+                    placeholder="Nombre"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    className="form-control mb-3"
+                    name="surname"
+                    placeholder="Apellidos"
+                    value={form.surname}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    className="form-control mb-3"
+                    type="date"
+                    name="birthdate"
+                    value={form.birthdate}
+                    onChange={handleChange}
+                    required
+                />
+
+                {/* 🔽 SELECT DE UBICACIÓN */}
+                <select
+                    className="form-control mb-3"
+                    name="ubication_id"
+                    value={form.ubication_id}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="">Selecciona una ubicación</option>
+                    {ubications.map(u => (
+                        <option key={u.id} value={u.id}>
+                            {u.city} ({u.country})
+                        </option>
+                    ))}
+                </select>
 
                 <div className="form-check mb-3">
                     <input
