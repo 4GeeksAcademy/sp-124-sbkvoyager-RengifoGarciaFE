@@ -1,90 +1,160 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function CommentFormPage() {
-  const navigate = useNavigate();
+	const { id } = useParams();
+	const navigate = useNavigate();
+	const isEdit = Boolean(id);
 
-  const [form, setForm] = useState({
-    text: "",
-    puntuation: 1,
-    post_id: "",
-    user_id: ""
-  });
+	const [posts, setPosts] = useState([]);
+	const [users, setUsers] = useState([]);
 
-  const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+	const [form, setForm] = useState({
+		text: "",
+		puntuation: 1,
+		post_id: "",
+		user_id: ""
+	});
 
-  const handleSubmit = async e => {
-    e.preventDefault();
+	useEffect(() => {
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/posts`)
+			.then(res => res.json())
+			.then(data => setPosts(data));
 
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}api/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users`)
+			.then(res => res.json())
+			.then(data => setUsers(data));
 
-    navigate("/comments");
-  };
+		if (isEdit) {
+			fetch(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${id}`)
+				.then(res => res.json())
+				.then(data => {
+					setForm({
+						text: data.text || "",
+						puntuation: data.puntuation || 1,
+						post_id: data.post?.id || data.post_id || "",
+						user_id: data.user?.id || data.user_id || ""
+					});
+				});
+		}
+	}, [id, isEdit]);
 
-  return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">Crear Comentario</h1>
+	const handleChange = e => {
+		const { name, value } = e.target;
+		setForm({
+			...form,
+			[name]:
+				name === "puntuation" || name === "post_id" || name === "user_id"
+					? Number(value)
+					: value
+		});
+	};
 
-      <form className="card p-4 shadow mx-auto"
-        style={{ maxWidth: "500px" }}
-        onSubmit={handleSubmit}
-      >
-        <textarea
-          className="form-control mb-3"
-          name="text"
-          placeholder="Comentario"
-          value={form.text}
-          onChange={handleChange}
-          required
-        />
+	const handleSubmit = async e => {
+		e.preventDefault();
 
-        <input
-          type="number"
-          min="1"
-          max="5"
-          className="form-control mb-3"
-          name="puntuation"
-          value={form.puntuation}
-          onChange={handleChange}
-          required
-        />
+		const url = isEdit
+			? `${import.meta.env.VITE_BACKEND_URL}/api/comments/${id}`
+			: `${import.meta.env.VITE_BACKEND_URL}/api/comments`;
 
-        <input
-          className="form-control mb-3"
-          name="post_id"
-          placeholder="Post ID"
-          value={form.post_id}
-          onChange={handleChange}
-          required
-        />
+		const method = isEdit ? "PUT" : "POST";
 
-        <input
-          className="form-control mb-3"
-          name="user_id"
-          placeholder="User ID"
-          value={form.user_id}
-          onChange={handleChange}
-          required
-        />
+		const resp = await fetch(url, {
+			method,
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(form)
+		});
 
-        <div className="d-flex justify-content-between">
-          <button type="button" className="btn btn-secondary"
-            onClick={() => navigate("/comments")}
-          >
-            Cancelar
-          </button>
+		if (!resp.ok) {
+			const errorData = await resp.json();
+			console.error("Error al guardar comentario:", errorData);
+			alert("No se pudo guardar el comentario");
+			return;
+		}
 
-          <button type="submit" className="btn btn-warning">
-            Crear
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+		navigate("/comments");
+	};
+
+	return (
+		<div className="container mt-5">
+			<h2 className="mb-4">{isEdit ? "Editar Comentario" : "Crear Comentario"}</h2>
+
+			<form onSubmit={handleSubmit}>
+				<div className="mb-3">
+					<label className="form-label">Texto</label>
+					<textarea
+						className="form-control"
+						name="text"
+						value={form.text}
+						onChange={handleChange}
+						required
+					/>
+				</div>
+
+				<div className="mb-3">
+					<label className="form-label">Puntuación</label>
+					<input
+						type="number"
+						min="1"
+						max="5"
+						className="form-control"
+						name="puntuation"
+						value={form.puntuation}
+						onChange={handleChange}
+						required
+					/>
+				</div>
+
+				<div className="mb-3">
+					<label className="form-label">Selecciona un post</label>
+					<select
+						className="form-select"
+						name="post_id"
+						value={form.post_id}
+						onChange={handleChange}
+						required
+					>
+						<option value="">-- Elige un post --</option>
+						{posts.map(post => (
+							<option key={post.id} value={post.id}>
+								{post.name} - {post.type}
+							</option>
+						))}
+					</select>
+				</div>
+
+				<div className="mb-3">
+					<label className="form-label">Selecciona un usuario</label>
+					<select
+						className="form-select"
+						name="user_id"
+						value={form.user_id}
+						onChange={handleChange}
+						required
+					>
+						<option value="">-- Elige un usuario --</option>
+						{users.map(user => (
+							<option key={user.id} value={user.id}>
+								{user.nickname} ({user.email})
+							</option>
+						))}
+					</select>
+				</div>
+
+				<div className="d-flex justify-content-between">
+					<button
+						type="button"
+						className="btn btn-secondary"
+						onClick={() => navigate("/comments")}
+					>
+						Cancelar
+					</button>
+
+					<button type="submit" className="btn btn-warning">
+						{isEdit ? "Guardar Cambios" : "Crear"}
+					</button>
+				</div>
+			</form>
+		</div>
+	);
 }
