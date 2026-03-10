@@ -23,6 +23,8 @@ export default function ImageDetailPage() {
                     <img src={image.url} alt={`Image ${image.id}`} className="img-fluid mb-3" />
                     <p><strong>ID:</strong> {image.id}</p>
                     <p><strong>URL:</strong> {image.url}</p>
+                    <p><strong>Post:</strong> {image.post?.name}</p>
+
 
                     <button
                         className="btn btn-secondary mt-3"

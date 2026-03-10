@@ -6,6 +6,9 @@ export default function PostFormPage() {
     const navigate = useNavigate();
     const isEdit = Boolean(id);
 
+    const [users, setUsers] = useState([]);
+    const [ubications, setUbications] = useState([]);
+
     const [form, setForm] = useState({
         type: "",
         event_date: "",
@@ -14,10 +17,20 @@ export default function PostFormPage() {
         name: "",
         contact_number: "",
         owner_name: "",
-        description: ""
+        description: "",
+        user_id: "",
+        ubication_id: ""
     });
 
     useEffect(() => {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}api/users`)
+            .then(res => res.json())
+            .then(data => setUsers(data));
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}api/ubications`)
+            .then(res => res.json())
+            .then(data => setUbications(data));
+
         if (isEdit) {
             fetch(`${import.meta.env.VITE_BACKEND_URL}api/posts/${id}`)
                 .then(res => res.json())
@@ -30,7 +43,9 @@ export default function PostFormPage() {
                         name: data.name,
                         contact_number: data.contact_number,
                         owner_name: data.owner_name,
-                        description: data.description
+                        description: data.description,
+                        user_id: data.user?.id || "",
+                        ubication_id: data.ubication?.id || ""
                     });
                 });
         }
@@ -65,29 +80,37 @@ export default function PostFormPage() {
                 {isEdit ? "Editar Post" : "Crear Post"}
             </h1>
 
-            <form
-                onSubmit={handleSubmit}
-                className="card p-4 shadow mx-auto"
-                style={{ maxWidth: "500px" }}
-            >
+            <form className="card p-4 shadow mx-auto" style={{ maxWidth: "500px" }} onSubmit={handleSubmit}>
+
                 <input className="form-control mb-3" name="type" placeholder="Tipo" value={form.type} onChange={handleChange} required />
-                <input className="form-control mb-3" name="event_date" type="date" placeholder="Fecha del evento" value={form.event_date} onChange={handleChange} required />
+                <input className="form-control mb-3" type="date" name="event_date" value={form.event_date} onChange={handleChange} required />
                 <input className="form-control mb-3" name="schedule" placeholder="Horario" value={form.schedule} onChange={handleChange} required />
                 <input className="form-control mb-3" name="styles" placeholder="Estilos" value={form.styles} onChange={handleChange} required />
-                <input className="form-control mb-3" name="name" placeholder="Nombre del evento" value={form.name} onChange={handleChange} required />
-                <input className="form-control mb-3" name="contact_number" placeholder="Teléfono de contacto" value={form.contact_number} onChange={handleChange} required />
-                <input className="form-control mb-3" name="owner_name" placeholder="Nombre del dueño" value={form.owner_name} onChange={handleChange} required />
+                <input className="form-control mb-3" name="name" placeholder="Nombre" value={form.name} onChange={handleChange} required />
+                <input className="form-control mb-3" name="contact_number" placeholder="Teléfono" value={form.contact_number} onChange={handleChange} required />
+                <input className="form-control mb-3" name="owner_name" placeholder="Propietario" value={form.owner_name} onChange={handleChange} required />
                 <input className="form-control mb-3" name="description" placeholder="Descripción" value={form.description} onChange={handleChange} required />
 
+                {/* USER */}
+                <select className="form-control mb-3" name="user_id" value={form.user_id} onChange={handleChange} required>
+                    <option value="">Selecciona un usuario</option>
+                    {users.map(u => (
+                        <option key={u.id} value={u.id}>{u.nickname}</option>
+                    ))}
+                </select>
+
+                {/* UBICATION */}
+                <select className="form-control mb-3" name="ubication_id" value={form.ubication_id} onChange={handleChange} required>
+                    <option value="">Selecciona una ubicación</option>
+                    {ubications.map(u => (
+                        <option key={u.id} value={u.id}>{u.city} ({u.country})</option>
+                    ))}
+                </select>
+
                 <div className="d-flex justify-content-between">
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => navigate("/posts")}
-                    >
+                    <button type="button" className="btn btn-secondary" onClick={() => navigate("/posts")}>
                         Cancelar
                     </button>
-
                     <button type="submit" className="btn btn-success">
                         {isEdit ? "Guardar Cambios" : "Crear Post"}
                     </button>
