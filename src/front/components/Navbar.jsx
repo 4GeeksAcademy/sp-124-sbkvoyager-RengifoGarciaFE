@@ -3,6 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 export const Navbar = () => {
   const location = useLocation();
 
+  const token = localStorage.getItem("jwt-token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwt-token");
+    window.location.href = "/";
+  };
+
   const isAdminsPage = location.pathname.startsWith("/admins-user");
   const isUbicationsPage = location.pathname.startsWith("/ubications");
   const isUsersPage = location.pathname.startsWith("/users");
@@ -48,6 +55,27 @@ export const Navbar = () => {
           <Link to="/comments" className="btn btn-secondary btn-lg m-2">
             Comments
           </Link>
+        )}
+
+        {/* LOGIN / LOGOUT */}
+
+        {!token ? (
+          <Link to="/login" className="btn btn-outline-primary btn-lg m-2">
+            Login
+          </Link>
+        ) : (
+          <>
+            <Link to="/protected" className="btn btn-outline-success btn-lg m-2">
+              Profile
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="btn btn-outline-danger btn-lg m-2"
+            >
+              Logout
+            </button>
+          </>
         )}
 
       </div>
