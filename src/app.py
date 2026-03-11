@@ -11,6 +11,7 @@ from api.routes import api
 from api.utils import generate_sitemap
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -26,6 +27,8 @@ else:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret")
+jwt = JWTManager(app)
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 CORS(app)
