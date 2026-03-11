@@ -7,23 +7,17 @@ export default function CommentFormPage() {
 	const isEdit = Boolean(id);
 
 	const [posts, setPosts] = useState([]);
-	const [users, setUsers] = useState([]);
 
 	const [form, setForm] = useState({
 		text: "",
 		puntuation: 1,
-		post_id: "",
-		user_id: ""
+		post_id: ""
 	});
 
 	useEffect(() => {
 		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/posts`)
 			.then(res => res.json())
 			.then(data => setPosts(data));
-
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users`)
-			.then(res => res.json())
-			.then(data => setUsers(data));
 
 		if (isEdit) {
 			fetch(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${id}`)
@@ -32,8 +26,7 @@ export default function CommentFormPage() {
 					setForm({
 						text: data.text || "",
 						puntuation: data.puntuation || 1,
-						post_id: data.post?.id || data.post_id || "",
-						user_id: data.user?.id || data.user_id || ""
+						post_id: data.post?.id || data.post_id || ""
 					});
 				});
 		}
@@ -44,7 +37,7 @@ export default function CommentFormPage() {
 		setForm({
 			...form,
 			[name]:
-				name === "puntuation" || name === "post_id" || name === "user_id"
+				name === "puntuation" || name === "post_id"
 					? Number(value)
 					: value
 		});
@@ -52,6 +45,13 @@ export default function CommentFormPage() {
 
 	const handleSubmit = async e => {
 		e.preventDefault();
+
+		const token = localStorage.getItem("jwt-token");
+
+		if (!token) {
+			alert("Debes iniciar sesión para crear un comentario");
+			return;
+		}
 
 		const url = isEdit
 			? `${import.meta.env.VITE_BACKEND_URL}/api/comments/${id}`
@@ -61,7 +61,10 @@ export default function CommentFormPage() {
 
 		const resp = await fetch(url, {
 			method,
-			headers: { "Content-Type": "application/json" },
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": "Bearer " + token
+			},
 			body: JSON.stringify(form)
 		});
 
@@ -118,24 +121,6 @@ export default function CommentFormPage() {
 						{posts.map(post => (
 							<option key={post.id} value={post.id}>
 								{post.name} - {post.type}
-							</option>
-						))}
-					</select>
-				</div>
-
-				<div className="mb-3">
-					<label className="form-label">Selecciona un usuario</label>
-					<select
-						className="form-select"
-						name="user_id"
-						value={form.user_id}
-						onChange={handleChange}
-						required
-					>
-						<option value="">-- Elige un usuario --</option>
-						{users.map(user => (
-							<option key={user.id} value={user.id}>
-								{user.nickname} ({user.email})
 							</option>
 						))}
 					</select>
