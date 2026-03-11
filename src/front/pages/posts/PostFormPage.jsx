@@ -6,7 +6,6 @@ export default function PostFormPage() {
     const navigate = useNavigate();
     const isEdit = Boolean(id);
 
-    const [users, setUsers] = useState([]);
     const [ubications, setUbications] = useState([]);
 
     const [form, setForm] = useState({
@@ -18,15 +17,10 @@ export default function PostFormPage() {
         contact_number: "",
         owner_name: "",
         description: "",
-        user_id: "",
         ubication_id: ""
     });
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_BACKEND_URL}api/users`)
-            .then(res => res.json())
-            .then(data => setUsers(data));
-
         fetch(`${import.meta.env.VITE_BACKEND_URL}api/ubications`)
             .then(res => res.json())
             .then(data => setUbications(data));
@@ -44,12 +38,11 @@ export default function PostFormPage() {
                         contact_number: data.contact_number,
                         owner_name: data.owner_name,
                         description: data.description,
-                        user_id: data.user?.id || "",
                         ubication_id: data.ubication?.id || ""
                     });
                 });
         }
-    }, [id]);
+    }, [id, isEdit]);
 
     const handleChange = e => {
         const { name, value } = e.target;
@@ -59,6 +52,13 @@ export default function PostFormPage() {
     const handleSubmit = async e => {
         e.preventDefault();
 
+        const token = localStorage.getItem("jwt-token");
+
+        if (!token) {
+            alert("Debes iniciar sesión para crear un post");
+            return;
+        }
+
         const url = isEdit
             ? `${import.meta.env.VITE_BACKEND_URL}api/posts/${id}`
             : `${import.meta.env.VITE_BACKEND_URL}api/posts`;
@@ -67,7 +67,10 @@ export default function PostFormPage() {
 
         await fetch(url, {
             method,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
             body: JSON.stringify(form)
         });
 
@@ -91,15 +94,6 @@ export default function PostFormPage() {
                 <input className="form-control mb-3" name="owner_name" placeholder="Propietario" value={form.owner_name} onChange={handleChange} required />
                 <input className="form-control mb-3" name="description" placeholder="Descripción" value={form.description} onChange={handleChange} required />
 
-                {/* USER */}
-                <select className="form-control mb-3" name="user_id" value={form.user_id} onChange={handleChange} required>
-                    <option value="">Selecciona un usuario</option>
-                    {users.map(u => (
-                        <option key={u.id} value={u.id}>{u.nickname}</option>
-                    ))}
-                </select>
-
-                {/* UBICATION */}
                 <select className="form-control mb-3" name="ubication_id" value={form.ubication_id} onChange={handleChange} required>
                     <option value="">Selecciona una ubicación</option>
                     {ubications.map(u => (

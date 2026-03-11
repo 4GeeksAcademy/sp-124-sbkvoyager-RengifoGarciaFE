@@ -271,8 +271,10 @@ def get_post(post_id):
 
 
 @api.route('/posts', methods=['POST'])
+@jwt_required()
 def create_post():
     data = request.json or {}
+
     required_fields = [
         "type",
         "event_date",
@@ -282,7 +284,6 @@ def create_post():
         "contact_number",
         "owner_name",
         "description",
-        "user_id",
         "ubication_id"
     ]
 
@@ -290,9 +291,7 @@ def create_post():
         if field not in data:
             return jsonify({"msg": f"Missing field: {field}"}), 400
 
-    user = User.query.get(data["user_id"])
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
+    current_user_id = int(get_jwt_identity())
 
     ubication = Ubication.query.get(data["ubication_id"])
     if not ubication:
@@ -307,7 +306,7 @@ def create_post():
         contact_number=data["contact_number"],
         owner_name=data["owner_name"],
         description=data["description"],
-        user_id=data["user_id"],
+        user_id=current_user_id,
         ubication_id=data["ubication_id"]
     )
 
@@ -379,27 +378,27 @@ def get_comment(comment_id):
 
 
 @api.route('/comments', methods=['POST'])
+@jwt_required()
 def create_comment():
     data = request.json or {}
-    required_fields = ["text", "puntuation", "post_id", "user_id"]
+
+    required_fields = ["text", "puntuation", "post_id"]
 
     for field in required_fields:
         if field not in data:
             return jsonify({"msg": f"Missing field: {field}"}), 400
 
+    current_user_id = int(get_jwt_identity())
+
     post = Post.query.get(data["post_id"])
     if not post:
         return jsonify({"msg": "Post not found"}), 404
-
-    user = User.query.get(data["user_id"])
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
 
     new_comment = Comment(
         text=data["text"],
         puntuation=data["puntuation"],
         post_id=data["post_id"],
-        user_id=data["user_id"]
+        user_id=current_user_id
     )
 
     db.session.add(new_comment)
