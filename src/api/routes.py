@@ -131,7 +131,7 @@ def create_user():
     new_user = User(
         nickname=data["nickname"],
         email=data["email"],
-        password=data["password"],  # luego hash
+        password=data["password"],
         name=data["name"],
         surname=data["surname"],
         birthdate=date.fromisoformat(data["birthdate"]),
@@ -270,6 +270,16 @@ def get_post(post_id):
     return jsonify(post.serialize()), 200
 
 
+@api.route('/posts/<int:post_id>/comments', methods=['GET'])
+def get_comments_by_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    return jsonify([c.serialize() for c in comments]), 200
+
+
 @api.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
@@ -322,12 +332,6 @@ def update_post(post_id):
         return jsonify({"msg": "Post not found"}), 404
 
     data = request.json or {}
-
-    if "user_id" in data:
-        user = User.query.get(data["user_id"])
-        if not user:
-            return jsonify({"msg": "User not found"}), 404
-        post.user_id = data["user_id"]
 
     if "ubication_id" in data:
         ubication = Ubication.query.get(data["ubication_id"])
@@ -419,12 +423,6 @@ def update_comment(comment_id):
         if not post:
             return jsonify({"msg": "Post not found"}), 404
         comment.post_id = data["post_id"]
-
-    if "user_id" in data:
-        user = User.query.get(data["user_id"])
-        if not user:
-            return jsonify({"msg": "User not found"}), 404
-        comment.user_id = data["user_id"]
 
     comment.text = data.get("text", comment.text)
     comment.puntuation = data.get("puntuation", comment.puntuation)
@@ -537,6 +535,7 @@ def create_token():
         "token": access_token,
         "user_id": user.id
     }), 200
+
 
 @api.route('/protected', methods=['GET'])
 @jwt_required()
