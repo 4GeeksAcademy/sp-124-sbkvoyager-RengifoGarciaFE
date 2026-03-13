@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
   const location = useLocation();
-
   const token = localStorage.getItem("jwt-token");
 
   const handleLogout = () => {
@@ -16,68 +15,72 @@ export const Navbar = () => {
   const isPostsPage = location.pathname.startsWith("/posts");
   const isImagesPage = location.pathname.startsWith("/images-post");
   const isCommentsPage = location.pathname.startsWith("/comments");
+  const isProfilePage = location.pathname.startsWith("/profile");
+  const isLoginPage = location.pathname.startsWith("/login");
 
   return (
-    <nav className="navbar">
-      <div className="text-center mt-5">
+    <nav className="navbar navbar-expand-lg bg-light border-bottom">
+      <div className="container py-3">
+        <Link to="/" className="navbar-brand fw-bold fs-3">
+          SBKVoyager
+        </Link>
 
-        {!isAdminsPage && (
-          <Link to="/admins-user" className="btn btn-success btn-lg m-2">
-            Admins
-          </Link>
-        )}
+        <div className="d-flex flex-wrap gap-2 justify-content-center">
+          {!isPostsPage && (
+            <Link to="/posts" className="btn btn-info">
+              Posts
+            </Link>
+          )}
 
-        {!isUbicationsPage && (
-          <Link to="/ubications" className="btn btn-primary btn-lg m-2">
-            Ubications
-          </Link>
-        )}
+          {!isUbicationsPage && (
+            <Link to="/ubications" className="btn btn-primary">
+              Ubications
+            </Link>
+          )}
 
-        {!isUsersPage && (
-          <Link to="/users" className="btn btn-warning btn-lg m-2">
-            Users
-          </Link>
-        )}
+          {!isUsersPage && (
+            <Link to="/users" className="btn btn-warning">
+              Users
+            </Link>
+          )}
 
-        {!isPostsPage && (
-          <Link to="/posts" className="btn btn-info btn-lg m-2">
-            Posts
-          </Link>
-        )}
+          {!isCommentsPage && (
+            <Link to="/comments" className="btn btn-secondary">
+              Comments
+            </Link>
+          )}
 
-        {!isImagesPage && (
-          <Link to="/images-post" className="btn btn-dark btn-lg m-2">
-            Images
-          </Link>
-        )}
+          {!isImagesPage && (
+            <Link to="/images-post" className="btn btn-dark">
+              Images
+            </Link>
+          )}
 
-        {!isCommentsPage && (
-          <Link to="/comments" className="btn btn-secondary btn-lg m-2">
-            Comments
-          </Link>
-        )}
+          {!isAdminsPage && (
+            <Link to="/admins-user" className="btn btn-success">
+              Admins
+            </Link>
+          )}
 
-        {/* LOGIN / LOGOUT */}
-
-        {!token ? (
-          <Link to="/login" className="btn btn-outline-primary btn-lg m-2">
-            Login
-          </Link>
-        ) : (
-          <>
-          <Link to="/profile" className="btn btn-outline-success btn-lg m-2">
-            Profile
-          </Link>
-
-            <button
-              onClick={handleLogout}
-              className="btn btn-outline-danger btn-lg m-2"
-            >
-              Logout
-            </button>
-          </>
-        )}
-
+          {!token ? (
+            !isLoginPage && (
+              <Link to="/login" className="btn btn-outline-primary">
+                Login
+              </Link>
+            )
+          ) : (
+            <>
+              {!isProfilePage && (
+                <Link to="/profile" className="btn btn-outline-success">
+                  Profile
+                </Link>
+              )}
+              <button onClick={handleLogout} className="btn btn-outline-danger">
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

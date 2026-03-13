@@ -93,13 +93,17 @@ export default function ProfilePage() {
 						<div className="row g-3">
 							{posts.map(post => (
 								<div key={post.id} className="col-md-6">
-									<div className="border rounded p-3 h-100 bg-light">
-										<h5>{post.name}</h5>
-										<p className="mb-1"><strong>Tipo:</strong> {post.type}</p>
-										<p className="mb-1"><strong>Estilos:</strong> {post.styles}</p>
-										<p className="mb-1"><strong>Horario:</strong> {post.schedule}</p>
-									</div>
-								</div>
+                                    <div className="border rounded p-3 h-100 bg-light">
+                                        <h5>{post.name}</h5>
+                                        <p className="mb-1"><strong>Tipo:</strong> {post.type}</p>
+                                        <p className="mb-1"><strong>Estilos:</strong> {post.styles}</p>
+                                        <p className="mb-3"><strong>Horario:</strong> {post.schedule}</p>
+
+                                        <a href={`/posts/${post.id}`} className="btn btn-sm btn-outline-primary">
+                                            Ver detalle
+                                        </a>
+                                    </div>
+                                </div>
 							))}
 						</div>
 					)}
