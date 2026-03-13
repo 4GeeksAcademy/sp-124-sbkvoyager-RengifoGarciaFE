@@ -10,6 +10,30 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
+# -----------------------------
+# HELPERS JWT
+# -----------------------------
+def get_user_id_from_token():
+    identity = get_jwt_identity()
+
+    if isinstance(identity, str) and identity.isdigit():
+        return int(identity)
+
+    return None
+
+
+def get_admin_id_from_token():
+    identity = get_jwt_identity()
+
+    if not isinstance(identity, str) or not identity.startswith("admin:"):
+        return None
+
+    try:
+        return int(identity.split(":")[1])
+    except (IndexError, ValueError):
+        return None
+
+
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
     response_body = {
@@ -280,6 +304,16 @@ def get_comments_by_post(post_id):
     return jsonify([c.serialize() for c in comments]), 200
 
 
+@api.route('/posts/<int:post_id>/images', methods=['GET'])
+def get_images_by_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    images = ImagePost.query.filter_by(post_id=post_id).all()
+    return jsonify([img.serialize() for img in images]), 200
+
+
 @api.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
@@ -301,25 +335,27 @@ def create_post():
         if field not in data:
             return jsonify({"msg": f"Missing field: {field}"}), 400
 
-    current_user_id = int(get_jwt_identity())
+    current_user_id = get_user_id_from_token()
+    if current_user_id is None:
+        return jsonify({"msg": "User token required"}), 403
 
     ubication = Ubication.query.get(data["ubication_id"])
     if not ubication:
         return jsonify({"msg": "Ubication not found"}), 404
 
     new_post = Post(
-    type=data["type"],
-    event_date=date.fromisoformat(data["event_date"]),
-    schedule=data["schedule"],
-    styles=data["styles"],
-    name=data["name"],
-    contact_number=data["contact_number"],
-    owner_name=data["owner_name"],
-    description=data["description"],
-    user_id=current_user_id,
-    ubication_id=data["ubication_id"],
-    is_approved=False
-)
+        type=data["type"],
+        event_date=date.fromisoformat(data["event_date"]),
+        schedule=data["schedule"],
+        styles=data["styles"],
+        name=data["name"],
+        contact_number=data["contact_number"],
+        owner_name=data["owner_name"],
+        description=data["description"],
+        user_id=current_user_id,
+        ubication_id=data["ubication_id"],
+        is_approved=False
+    )
 
     db.session.add(new_post)
     db.session.commit()
@@ -366,6 +402,88 @@ def delete_post(post_id):
 
 
 # -----------------------------
+# ADMIN MODERATION
+# -----------------------------
+@api.route('/admin/posts/pending', methods=['GET'])
+@jwt_required()
+def get_pending_posts():
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Admin token required"}), 403
+
+    posts = Post.query.filter_by(is_approved=False).all()
+    return jsonify([p.serialize() for p in posts]), 200
+
+
+@api.route('/admin/posts/<int:post_id>/approve', methods=['PUT'])
+@jwt_required()
+def approve_post(post_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Admin token required"}), 403
+
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    post.is_approved = True
+    db.session.commit()
+
+    return jsonify(post.serialize()), 200
+
+
+@api.route('/admin/posts/<int:post_id>', methods=['DELETE'])
+@jwt_required()
+def admin_delete_post(post_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Admin token required"}), 403
+
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return jsonify({"msg": "Post deleted by admin"}), 200
+
+
+@api.route('/admin/comments/<int:comment_id>', methods=['DELETE'])
+@jwt_required()
+def admin_delete_comment(comment_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Admin token required"}), 403
+
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        return jsonify({"msg": "Comment not found"}), 404
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    return jsonify({"msg": "Comment deleted by admin"}), 200
+
+
+@api.route('/admin/images-post/<int:image_id>', methods=['DELETE'])
+@jwt_required()
+def admin_delete_image(image_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Admin token required"}), 403
+
+    image = ImagePost.query.get(image_id)
+    if not image:
+        return jsonify({"msg": "Image not found"}), 404
+
+    db.session.delete(image)
+    db.session.commit()
+
+    return jsonify({"msg": "Image deleted by admin"}), 200
+
+
+# -----------------------------
 # COMMENTS
 # -----------------------------
 @api.route('/comments', methods=['GET'])
@@ -393,7 +511,9 @@ def create_comment():
         if field not in data:
             return jsonify({"msg": f"Missing field: {field}"}), 400
 
-    current_user_id = int(get_jwt_identity())
+    current_user_id = get_user_id_from_token()
+    if current_user_id is None:
+        return jsonify({"msg": "User token required"}), 403
 
     post = Post.query.get(data["post_id"])
     if not post:
@@ -442,21 +562,6 @@ def delete_comment(comment_id):
     db.session.commit()
     return jsonify({"msg": "Comment deleted"}), 200
 
-@api.route('/admin/comments/<int:comment_id>', methods=['DELETE'])
-@jwt_required()
-def admin_delete_comment(comment_id):
-    admin_id = get_admin_id_from_token()
-    if admin_id is None:
-        return jsonify({"msg": "Admin token required"}), 403
-
-    comment = Comment.query.get(comment_id)
-    if not comment:
-        return jsonify({"msg": "Comment not found"}), 404
-
-    db.session.delete(comment)
-    db.session.commit()
-
-    return jsonify({"msg": "Comment deleted by admin"}), 200
 
 # -----------------------------
 # IMAGES POST
@@ -528,65 +633,9 @@ def delete_image(image_id):
     db.session.commit()
     return jsonify({"msg": "Image deleted"}), 200
 
-@api.route('/posts/<int:post_id>/images', methods=['GET'])
-def get_images_by_post(post_id):
-    post = Post.query.get(post_id)
-    if not post:
-        return jsonify({"msg": "Post not found"}), 404
-
-    images = ImagePost.query.filter_by(post_id=post_id).all()
-    return jsonify([img.serialize() for img in images]), 200
-
-@api.route('/admin/posts/<int:post_id>/approve', methods=['PUT'])
-@jwt_required()
-def approve_post(post_id):
-    admin_id = get_admin_id_from_token()
-    if admin_id is None:
-        return jsonify({"msg": "Admin token required"}), 403
-
-    post = Post.query.get(post_id)
-    if not post:
-        return jsonify({"msg": "Post not found"}), 404
-
-    post.is_approved = True
-    db.session.commit()
-
-    return jsonify(post.serialize()), 200
-
-@api.route('/admin/posts/<int:post_id>', methods=['DELETE'])
-@jwt_required()
-def admin_delete_post(post_id):
-    admin_id = get_admin_id_from_token()
-    if admin_id is None:
-        return jsonify({"msg": "Admin token required"}), 403
-
-    post = Post.query.get(post_id)
-    if not post:
-        return jsonify({"msg": "Post not found"}), 404
-
-    db.session.delete(post)
-    db.session.commit()
-
-    return jsonify({"msg": "Post deleted by admin"}), 200
-
-@api.route('/admin/images-post/<int:image_id>', methods=['DELETE'])
-@jwt_required()
-def admin_delete_image(image_id):
-    admin_id = get_admin_id_from_token()
-    if admin_id is None:
-        return jsonify({"msg": "Admin token required"}), 403
-
-    image = ImagePost.query.get(image_id)
-    if not image:
-        return jsonify({"msg": "Image not found"}), 404
-
-    db.session.delete(image)
-    db.session.commit()
-
-    return jsonify({"msg": "Image deleted by admin"}), 200
 
 # -----------------------------
-# AUTH USER
+# AUTH USER / ADMIN
 # -----------------------------
 @api.route('/token', methods=['POST'])
 def create_token():
@@ -608,6 +657,7 @@ def create_token():
         "user_id": user.id
     }), 200
 
+
 @api.route('/admin-token', methods=['POST'])
 def create_admin_token():
     email = request.json.get("email", None)
@@ -628,10 +678,14 @@ def create_admin_token():
         "admin_id": admin.id
     }), 200
 
+
 @api.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():
-    current_user_id = int(get_jwt_identity())
+    current_user_id = get_user_id_from_token()
+    if current_user_id is None:
+        return jsonify({"msg": "User token required"}), 403
+
     user = User.query.get(current_user_id)
 
     if user is None:
@@ -643,24 +697,17 @@ def protected():
         "email": user.email
     }), 200
 
+
 @api.route('/me', methods=['GET'])
 @jwt_required()
 def get_me():
-    current_user_id = int(get_jwt_identity())
+    current_user_id = get_user_id_from_token()
+    if current_user_id is None:
+        return jsonify({"msg": "User token required"}), 403
+
     user = User.query.get(current_user_id)
 
     if user is None:
         return jsonify({"msg": "User not found"}), 404
 
     return jsonify(user.serialize()), 200
-
-def get_admin_id_from_token():
-    identity = get_jwt_identity()
-
-    if not isinstance(identity, str) or not identity.startswith("admin:"):
-        return None
-
-    try:
-        return int(identity.split(":")[1])
-    except (IndexError, ValueError):
-        return None
