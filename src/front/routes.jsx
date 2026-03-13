@@ -36,6 +36,8 @@ import ImageDetailPage from "./pages/images/ImageDetailPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedPage from "./pages/ProtectedPage";
 
+import ProfilePage from "./pages/ProfilePage";
+
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>}>
@@ -73,6 +75,7 @@ export const router = createBrowserRouter(
 
       <Route path="login" element={<LoginPage />} />
       <Route path="protected" element={<ProtectedPage />} />
+      <Route path="profile" element={<ProfilePage />} />
 
       <Route path="demo" element={<Demo />} />
     </Route>
