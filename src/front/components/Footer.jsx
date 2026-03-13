@@ -1,11 +1,15 @@
-export const Footer = () => (
-	<footer className="footer mt-auto py-3 text-center">
-		<p>
-			Check the <a target="_blank" href="https://4geeks.com/docs/start/react-flask-template">template documentation</a> <i className="fa-solid fa-file"></i> for help.
-		</p>
-		<p>
-			Made with <i className="fa fa-heart text-danger" /> by{"Fabio"}
-			<a href="http://www.4geeksacademy.com">4Geeks Academy</a>
-		</p>
-	</footer>
-);
+export const Footer = () => {
+  return (
+    <footer className="bg-light border-top mt-5">
+      <div className="container py-4 text-center">
+
+        <p className="mb-1 fw-bold">SBKVoyager</p>
+
+        <p className="text-muted mb-0">
+          Encuentra lugares para bailar salsa, bachata y kizomba en todo el mundo.
+        </p>
+
+      </div>
+    </footer>
+  );
+};
