@@ -512,6 +512,14 @@ def delete_image(image_id):
     db.session.commit()
     return jsonify({"msg": "Image deleted"}), 200
 
+@api.route('/posts/<int:post_id>/images', methods=['GET'])
+def get_images_by_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    images = ImagePost.query.filter_by(post_id=post_id).all()
+    return jsonify([img.serialize() for img in images]), 200
 
 # -----------------------------
 # AUTH USER
