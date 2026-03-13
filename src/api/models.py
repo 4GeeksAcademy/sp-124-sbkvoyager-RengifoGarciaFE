@@ -91,10 +91,11 @@ class Post(db.Model):
     schedule: Mapped[str] = mapped_column(String(15), nullable=False)
     styles: Mapped[str] = mapped_column(String(120), nullable=False)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-
+    
     contact_number: Mapped[str] = mapped_column(String(20), nullable=False)
     owner_name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_approved: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("user.id"), nullable=False
@@ -123,6 +124,7 @@ class Post(db.Model):
             "contact_number": self.contact_number,
             "owner_name": self.owner_name,
             "description": self.description,
+            "is_approved": self.is_approved,
             "user_id": self.user_id,
             "ubication_id": self.ubication_id
         }
