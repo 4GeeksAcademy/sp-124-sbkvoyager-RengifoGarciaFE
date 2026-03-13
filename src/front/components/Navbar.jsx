@@ -65,9 +65,9 @@ export const Navbar = () => {
           </Link>
         ) : (
           <>
-            <Link to="/protected" className="btn btn-outline-success btn-lg m-2">
-              Profile
-            </Link>
+          <Link to="/profile" className="btn btn-outline-success btn-lg m-2">
+            Profile
+          </Link>
 
             <button
               onClick={handleLogout}

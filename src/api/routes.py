@@ -559,3 +559,14 @@ def protected():
         "nickname": user.nickname,
         "email": user.email
     }), 200
+
+@api.route('/me', methods=['GET'])
+@jwt_required()
+def get_me():
+    current_user_id = int(get_jwt_identity())
+    user = User.query.get(current_user_id)
+
+    if user is None:
+        return jsonify({"msg": "User not found"}), 404
+
+    return jsonify(user.serialize()), 200
