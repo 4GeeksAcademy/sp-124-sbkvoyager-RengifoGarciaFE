@@ -85,7 +85,12 @@ export default function PostFormPage() {
 
             <form className="card p-4 shadow mx-auto" style={{ maxWidth: "500px" }} onSubmit={handleSubmit}>
 
-                <input className="form-control mb-3" name="type" placeholder="Tipo" value={form.type} onChange={handleChange} required />
+                <select className="form-control mb-3" name="type" value={form.type}	onChange={handleChange}	required>
+                    <option value="">Selecciona el tipo</option>
+                    <option value="Escuela">Escuela</option>
+                    <option value="Sesión">Sesión</option>
+                    <option value="Taller">Taller</option>
+                </select>
                 <input className="form-control mb-3" type="date" name="event_date" value={form.event_date} onChange={handleChange} required />
                 <input className="form-control mb-3" name="schedule" placeholder="Horario" value={form.schedule} onChange={handleChange} required />
                 <input className="form-control mb-3" name="styles" placeholder="Estilos" value={form.styles} onChange={handleChange} required />

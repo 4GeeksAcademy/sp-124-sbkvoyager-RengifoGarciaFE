@@ -43,9 +43,14 @@ export const Navbar = () => {
           )}
 
           {!token ? (
+            <>
+            <Link to="/register" className="btn btn-outline-secondary">
+              Register
+            </Link>
             <Link to="/login" className="btn btn-primary">
               Login
             </Link>
+            </>
           ) : (
             <button onClick={handleLogout} className="btn btn-danger">
               Logout
