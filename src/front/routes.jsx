@@ -21,6 +21,7 @@ import UbicationFormPage from "./pages/ubications/UbicationFormPage";
 import UsersPage from "./pages/users/UsersPage";
 import UserFormPage from "./pages/users/UserFormPage";
 import UserDetailPage from "./pages/users/UserDetailPage";
+import UserRegisterPage from "./pages/users/UserRegisterPage";
 
 import PostsPage from "./pages/posts/PostsPage";
 import PostFormPage from "./pages/posts/PostFormPage";
@@ -61,6 +62,7 @@ export const router = createBrowserRouter(
       <Route path="users/new" element={<UserFormPage />} />
       <Route path="users/:id" element={<UserDetailPage />} />
       <Route path="users/:id/edit" element={<UserFormPage />} />
+      <Route path="register" element={<UserRegisterPage />} />
 
       <Route path="posts" element={<PostsPage />} />
       <Route path="posts/new" element={<PostFormPage />} />

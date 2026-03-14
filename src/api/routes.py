@@ -335,6 +335,10 @@ def create_post():
         if field not in data:
             return jsonify({"msg": f"Missing field: {field}"}), 400
 
+    allowed_types = ["Escuela", "Sesión", "Taller"]
+    if data["type"] not in allowed_types:
+        return jsonify({"msg": "Invalid post type"}), 400
+
     current_user_id = get_user_id_from_token()
     if current_user_id is None:
         return jsonify({"msg": "User token required"}), 403
@@ -375,6 +379,11 @@ def update_post(post_id):
         if not ubication:
             return jsonify({"msg": "Ubication not found"}), 404
         post.ubication_id = data["ubication_id"]
+
+    if "type" in data:
+        allowed_types = ["Escuela", "Sesión", "Taller"]
+        if data["type"] not in allowed_types:
+            return jsonify({"msg": "Invalid post type"}), 400
 
     post.type = data.get("type", post.type)
     if "event_date" in data:
