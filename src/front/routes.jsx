@@ -12,6 +12,7 @@ import { Demo } from "./pages/Demo";
 import AdminsPage from "./pages/admins/AdminsPage";
 import AdminDetailPage from "./pages/admins/AdminDetailPage";
 import AdminFormPage from "./pages/admins/AdminFormPage";
+import AdminPanelPage from "./pages/admins/AdminPanelPage";
 
 import UbicationsPage from "./pages/ubications/UbicationsPage";
 import UbicationDetailPage from "./pages/ubications/UbicationDetailPage";
@@ -37,6 +38,8 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedPage from "./pages/ProtectedPage";
 
 import ProfilePage from "./pages/ProfilePage";
+
+
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -74,10 +77,10 @@ export const router = createBrowserRouter(
       <Route path="images-post/:id/edit" element={<ImageFormPage />} />
 
       <Route path="login" element={<LoginPage />} />
-      <Route path="protected" element={<ProtectedPage />} />
-      <Route path="profile" element={<ProfilePage />} />
-
-      <Route path="demo" element={<Demo />} />
+    <Route path="protected" element={<ProtectedPage />} />
+    <Route path="profile" element={<ProfilePage />} />
+    <Route path="admin-panel" element={<AdminPanelPage />} />
+    <Route path="demo" element={<Demo />} />
     </Route>
   )
 );
