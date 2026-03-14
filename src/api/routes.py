@@ -711,3 +711,4 @@ def get_me():
         return jsonify({"msg": "User not found"}), 404
 
     return jsonify(user.serialize()), 200
+

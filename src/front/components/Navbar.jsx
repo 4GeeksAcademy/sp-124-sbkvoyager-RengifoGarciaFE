@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 
 export const Navbar = () => {
   const token = localStorage.getItem("jwt-token");
+  const adminToken = localStorage.getItem("admin-token");
 
   const handleLogout = () => {
     localStorage.removeItem("jwt-token");
+    localStorage.removeItem("admin-token");
     window.location.href = "/";
   };
 
@@ -21,6 +23,12 @@ export const Navbar = () => {
           <Link to="/posts" className="btn btn-outline-primary">
             Explorar
           </Link>
+
+          {adminToken && (
+            <Link to="/admin-panel" className="btn btn-outline-warning">
+              Admin Panel
+            </Link>
+          )}
 
           {token && (
             <Link to="/posts/new" className="btn btn-outline-success">
