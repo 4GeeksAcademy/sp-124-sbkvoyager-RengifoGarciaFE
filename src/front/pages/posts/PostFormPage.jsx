@@ -101,10 +101,19 @@ export default function PostFormPage() {
 
                 <select className="form-control mb-3" name="ubication_id" value={form.ubication_id} onChange={handleChange} required>
                     <option value="">Selecciona una ubicación</option>
-                    {ubications.map(u => (
-                        <option key={u.id} value={u.id}>{u.city} ({u.country})</option>
+
+                    {ubications.map((u) => (
+                        <option key={u.id} value={u.id}>
+                            {u.city} ({u.country}) - {u.street} {u.number}
+                        </option>
                     ))}
                 </select>
+                <div className="mb-3">
+                    <small>
+                        ¿No encuentras la ubicación?{" "}
+                        <a href="/ubications/new">Crear nueva ubicación</a>
+                    </small>
+                </div>
 
                 <div className="d-flex justify-content-between">
                     <button type="button" className="btn btn-secondary" onClick={() => navigate("/posts")}>

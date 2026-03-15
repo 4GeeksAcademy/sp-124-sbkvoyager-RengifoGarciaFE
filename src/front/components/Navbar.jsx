@@ -23,6 +23,9 @@ export const Navbar = () => {
           <Link to="/posts" className="btn btn-outline-primary">
             Explorar
           </Link>
+          <Link to="/ubications/new" className="btn btn-outline-info">
+            Nueva Ubicación
+          </Link>
 
           {adminToken && (
             <Link to="/admin-panel" className="btn btn-outline-warning">

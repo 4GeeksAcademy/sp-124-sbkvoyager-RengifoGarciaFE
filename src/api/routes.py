@@ -215,7 +215,7 @@ def delete_user_by_id(user_id):
 # -----------------------------
 @api.route('/ubications', methods=['GET'])
 def get_ubications():
-    ubications = Ubication.query.all()
+    ubications = Ubication.query.order_by(Ubication.city).all()
     return jsonify([u.serialize() for u in ubications]), 200
 
 
