@@ -21,11 +21,17 @@ export default function ProfilePage() {
 					headers: {
 						"Authorization": "Bearer " + token
 					}
-				});
+		});
 
-				if (!userResp.ok) {
-					throw new Error("No se pudo cargar el perfil");
-				}
+		if (userResp.status === 401 || userResp.status === 403 || userResp.status === 404) {
+			localStorage.removeItem("jwt-token");
+			window.location.href = "/login";
+			return;
+		}
+
+		if (!userResp.ok) {
+			throw new Error("No se pudo cargar el perfil");
+		}
 
 				const userData = await userResp.json();
 				setUser(userData);

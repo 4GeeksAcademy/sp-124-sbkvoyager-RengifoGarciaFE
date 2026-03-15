@@ -24,7 +24,7 @@ export default function LoginPage() {
 			}
 
 			localStorage.setItem("jwt-token", data.token);
-			window.location.href = "/protected";
+			navigate("/profile");
 		} catch (err) {
 			setError("Server error");
 		}

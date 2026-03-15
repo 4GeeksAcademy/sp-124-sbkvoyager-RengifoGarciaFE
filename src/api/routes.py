@@ -367,10 +367,17 @@ def create_post():
 
 
 @api.route('/posts/<int:post_id>', methods=['PUT'])
+@jwt_required()
 def update_post(post_id):
     post = Post.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
+
+    user_id = get_user_id_from_token()
+    admin_id = get_admin_id_from_token()
+
+    if admin_id is None and user_id != post.user_id:
+        return jsonify({"msg": "You can only edit your own posts"}), 403
 
     data = request.json or {}
 
@@ -386,8 +393,10 @@ def update_post(post_id):
             return jsonify({"msg": "Invalid post type"}), 400
 
     post.type = data.get("type", post.type)
+
     if "event_date" in data:
         post.event_date = date.fromisoformat(data["event_date"])
+
     post.schedule = data.get("schedule", post.schedule)
     post.styles = data.get("styles", post.styles)
     post.name = data.get("name", post.name)
@@ -398,9 +407,13 @@ def update_post(post_id):
     db.session.commit()
     return jsonify(post.serialize()), 200
 
-
 @api.route('/posts/<int:post_id>', methods=['DELETE'])
+@jwt_required()
 def delete_post(post_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete posts"}), 403
+
     post = Post.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
@@ -562,7 +575,12 @@ def update_comment(comment_id):
 
 
 @api.route('/comments/<int:comment_id>', methods=['DELETE'])
+@jwt_required()
 def delete_comment(comment_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete comments"}), 403
+
     comment = Comment.query.get(comment_id)
     if not comment:
         return jsonify({"msg": "Comment not found"}), 404
@@ -633,7 +651,12 @@ def update_image(image_id):
 
 
 @api.route('/images-post/<int:image_id>', methods=['DELETE'])
+@jwt_required()
 def delete_image(image_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete images"}), 403
+
     image = ImagePost.query.get(image_id)
     if not image:
         return jsonify({"msg": "Image not found"}), 404
@@ -641,7 +664,6 @@ def delete_image(image_id):
     db.session.delete(image)
     db.session.commit()
     return jsonify({"msg": "Image deleted"}), 200
-
 
 # -----------------------------
 # AUTH USER / ADMIN
