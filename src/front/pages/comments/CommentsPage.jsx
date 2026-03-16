@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 export default function CommentsPage() {
   const [comments, setComments] = useState([]);
   const adminToken = localStorage.getItem("admin-token");
-
   const fetchComments = async () => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/comments`);
     const data = await res.json();
@@ -54,17 +53,13 @@ export default function CommentsPage() {
               <div className="card-body">
                 <p className="fw-bold text-center">{c.text}</p>
                 <p className="text-center">⭐ {c.puntuation}</p>
-
                 <div className="d-flex justify-content-center gap-2 flex-wrap">
                   <Link to={`/comments/${c.id}`} className="btn btn-light">
                     Ver
                   </Link>
 
                   {adminToken && (
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => deleteComment(c.id)}
-                    >
+                    <button className="btn btn-danger" onClick={() => deleteComment(c.id)}>
                       Eliminar
                     </button>
                   )}
@@ -75,9 +70,7 @@ export default function CommentsPage() {
         ))}
 
         {comments.length === 0 && (
-          <p className="text-center mt-5 text-muted">
-            No hay comentarios
-          </p>
+          <p className="text-center mt-5 text-muted"> No hay comentarios</p>
         )}
       </div>
     </div>

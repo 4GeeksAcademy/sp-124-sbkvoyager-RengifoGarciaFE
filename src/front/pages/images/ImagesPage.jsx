@@ -5,7 +5,6 @@ export default function ImageDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [image, setImage] = useState(null);
-
     useEffect(() => {
         fetch(`${import.meta.env.VITE_BACKEND_URL}api/images-post/${id}`)
             .then(res => res.json())
@@ -17,7 +16,6 @@ export default function ImageDetailPage() {
     return (
         <div className="container mt-4">
             <h1>Ficha de Imagen</h1>
-
             <div className="card mt-4 shadow text-center">
                 <div className="card-body">
                     <img src={image.url} alt={`Image ${image.id}`} className="img-fluid mb-3" />
@@ -26,10 +24,7 @@ export default function ImageDetailPage() {
                     <p><strong>Post:</strong> {image.post?.name}</p>
 
 
-                    <button
-                        className="btn btn-secondary mt-3"
-                        onClick={() => navigate("/images-post")}
-                    >
+                    <button className="btn btn-secondary mt-3" onClick={() => navigate("/images-post")}>
                         Volver a Imágenes
                     </button>
                 </div>

@@ -4,7 +4,6 @@ export default function AdminPanelPage() {
 	const [posts, setPosts] = useState([]);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(true);
-
 	const loadPendingPosts = async () => {
 		const token = localStorage.getItem("admin-token");
 
@@ -13,23 +12,19 @@ export default function AdminPanelPage() {
 			setLoading(false);
 			return;
 		}
-
 		try {
 			setLoading(true);
 			setError("");
-
 			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/admin/posts/pending`, {
 				headers: {
 					"Authorization": "Bearer " + token
 				}
 			});
-
 			const data = await resp.json();
 
 			if (!resp.ok) {
 				throw new Error(data.msg || "No se pudieron cargar los posts pendientes");
 			}
-
 			setPosts(data);
 		} catch (err) {
 			setError(err.message);
@@ -44,7 +39,6 @@ export default function AdminPanelPage() {
 
 	const handleApprove = async (postId) => {
 		const token = localStorage.getItem("admin-token");
-
 		try {
 			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/admin/posts/${postId}/approve`, {
 				method: "PUT",
@@ -54,11 +48,9 @@ export default function AdminPanelPage() {
 			});
 
 			const data = await resp.json();
-
 			if (!resp.ok) {
 				throw new Error(data.msg || "No se pudo aprobar el post");
 			}
-
 			await loadPendingPosts();
 		} catch (err) {
 			alert(err.message);
@@ -67,7 +59,6 @@ export default function AdminPanelPage() {
 
 	const handleDelete = async (postId) => {
 		const token = localStorage.getItem("admin-token");
-
 		const confirmed = window.confirm("¿Seguro que quieres eliminar este post?");
 		if (!confirmed) return;
 
@@ -98,7 +89,6 @@ export default function AdminPanelPage() {
 			</div>
 		);
 	}
-
 	if (error) {
 		return (
 			<div className="container mt-5">
@@ -129,19 +119,12 @@ export default function AdminPanelPage() {
 										<p className="mb-1"><strong>Estilos:</strong> {post.styles}</p>
 										<p className="mb-1"><strong>Horario:</strong> {post.schedule}</p>
 										<p className="mb-3"><strong>Descripción:</strong> {post.description}</p>
-
 										<div className="d-flex gap-2">
-											<button
-												className="btn btn-success btn-sm"
-												onClick={() => handleApprove(post.id)}
-											>
+											<button className="btn btn-success btn-sm" onClick={() => handleApprove(post.id)}>
 												Aprobar
 											</button>
 
-											<button
-												className="btn btn-danger btn-sm"
-												onClick={() => handleDelete(post.id)}
-											>
+											<button className="btn btn-danger btn-sm" onClick={() => handleDelete(post.id)}>
 												Eliminar
 											</button>
 										</div>

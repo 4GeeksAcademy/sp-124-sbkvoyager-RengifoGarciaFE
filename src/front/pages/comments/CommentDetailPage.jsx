@@ -44,7 +44,6 @@ export default function CommentDetailPage() {
   return (
     <div className="container mt-4">
       <h1>Detalle del Comentario</h1>
-
       <div className="card mt-4 shadow">
         <div className="card-body">
           <p><strong>Texto:</strong> {comment.text}</p>

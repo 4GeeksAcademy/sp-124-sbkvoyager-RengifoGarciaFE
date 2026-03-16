@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 export default function AdminDetailPage() {
   const { id } = useParams();
   const [adminUser, setAdminUser] = useState(null);
-
   const fetchCliente = async () => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin-user/${id}`);
     const data = await res.json();
@@ -20,7 +19,6 @@ export default function AdminDetailPage() {
   return (
     <div className="container mt-4">
       <h1>Ficha del Admin</h1>
-
       <div className="card mt-4 shadow">
         <div className="card-body">
           <p><strong>Email:</strong> {adminUser.email}</p>

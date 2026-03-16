@@ -11,9 +11,7 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-# -----------------------------
-# HELPERS JWT
-# -----------------------------
+#jwt helpers
 def get_user_id_from_token():
     identity = get_jwt_identity()
 
@@ -43,9 +41,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
-# -----------------------------
-# ADMIN USERS
-# -----------------------------
+#admin users
 @api.route('/admin-user', methods=['GET'])
 def get_admins():
     admins_user = AdminUser.query.all()
@@ -110,9 +106,7 @@ def delete_admin_user(admin_user_id):
     return jsonify({"msg": "Admin deleted"}), 200
 
 
-# -----------------------------
-# USERS
-# -----------------------------
+#users
 @api.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -211,9 +205,7 @@ def delete_user_by_id(user_id):
     return jsonify({"msg": "User deleted"}), 200
 
 
-# -----------------------------
-# UBICATIONS
-# -----------------------------
+#ubications
 @api.route('/ubications', methods=['GET'])
 def get_ubications():
     ubications = Ubication.query.order_by(Ubication.city).all()
@@ -278,9 +270,7 @@ def delete_ubication(ubication_id):
     return jsonify({"msg": "Ubication deleted"}), 200
 
 
-# -----------------------------
-# POSTS
-# -----------------------------
+#posts
 @api.route('/posts', methods=['GET'])
 def get_posts():
     posts = Post.query.filter_by(is_approved=True).all()
@@ -423,10 +413,7 @@ def delete_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post deleted"}), 200
 
-
-# -----------------------------
-# ADMIN MODERATION
-# -----------------------------
+#admin moderation
 @api.route('/admin/posts/pending', methods=['GET'])
 @jwt_required()
 def get_pending_posts():
@@ -506,9 +493,7 @@ def admin_delete_image(image_id):
     return jsonify({"msg": "Image deleted by admin"}), 200
 
 
-# -----------------------------
-# COMMENTS
-# -----------------------------
+#comments
 @api.route('/comments', methods=['GET'])
 def get_comments():
     comments = Comment.query.all()
@@ -591,9 +576,7 @@ def delete_comment(comment_id):
     return jsonify({"msg": "Comment deleted"}), 200
 
 
-# -----------------------------
-# IMAGES POST
-# -----------------------------
+#images posts
 @api.route('/images-post', methods=['GET'])
 def get_images():
     images = ImagePost.query.all()
@@ -666,9 +649,7 @@ def delete_image(image_id):
     db.session.commit()
     return jsonify({"msg": "Image deleted"}), 200
 
-# -----------------------------
-# AUTH USER / ADMIN
-# -----------------------------
+#auth user
 @api.route('/token', methods=['POST'])
 def create_token():
     email = request.json.get("email", None)

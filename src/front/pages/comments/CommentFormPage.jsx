@@ -5,9 +5,7 @@ export default function CommentFormPage() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const isEdit = Boolean(id);
-
 	const [posts, setPosts] = useState([]);
-
 	const [form, setForm] = useState({
 		text: "",
 		puntuation: 1,
@@ -45,20 +43,16 @@ export default function CommentFormPage() {
 
 	const handleSubmit = async e => {
 		e.preventDefault();
-
 		const token = localStorage.getItem("jwt-token");
-
 		if (!token) {
 			alert("Debes iniciar sesión para crear un comentario");
 			return;
 		}
-
 		const url = isEdit
 			? `${import.meta.env.VITE_BACKEND_URL}/api/comments/${id}`
 			: `${import.meta.env.VITE_BACKEND_URL}/api/comments`;
 
 		const method = isEdit ? "PUT" : "POST";
-
 		const resp = await fetch(url, {
 			method,
 			headers: {
@@ -74,49 +68,24 @@ export default function CommentFormPage() {
 			alert("No se pudo guardar el comentario");
 			return;
 		}
-
 		navigate("/comments");
 	};
 
 	return (
 		<div className="container mt-5">
 			<h2 className="mb-4">{isEdit ? "Editar Comentario" : "Crear Comentario"}</h2>
-
 			<form onSubmit={handleSubmit}>
 				<div className="mb-3">
 					<label className="form-label">Texto</label>
-					<textarea
-						className="form-control"
-						name="text"
-						value={form.text}
-						onChange={handleChange}
-						required
-					/>
+					<textarea className="form-control" name="text" value={form.text} onChange={handleChange} required/>
 				</div>
-
 				<div className="mb-3">
 					<label className="form-label">Puntuación</label>
-					<input
-						type="number"
-						min="1"
-						max="5"
-						className="form-control"
-						name="puntuation"
-						value={form.puntuation}
-						onChange={handleChange}
-						required
-					/>
+					<input type="number" min="1" max="5" className="form-control" name="puntuation" value={form.puntuation} onChange={handleChange} required/>
 				</div>
-
 				<div className="mb-3">
 					<label className="form-label">Selecciona un post</label>
-					<select
-						className="form-select"
-						name="post_id"
-						value={form.post_id}
-						onChange={handleChange}
-						required
-					>
+					<select className="form-select" name="post_id" value={form.post_id} onChange={handleChange} required>
 						<option value="">-- Elige un post --</option>
 						{posts.map(post => (
 							<option key={post.id} value={post.id}>
@@ -125,13 +94,8 @@ export default function CommentFormPage() {
 						))}
 					</select>
 				</div>
-
 				<div className="d-flex justify-content-between">
-					<button
-						type="button"
-						className="btn btn-secondary"
-						onClick={() => navigate("/comments")}
-					>
+					<button type="button" className="btn btn-secondary" onClick={() => navigate("/comments")}>
 						Cancelar
 					</button>
 

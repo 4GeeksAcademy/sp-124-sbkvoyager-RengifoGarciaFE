@@ -2,18 +2,15 @@ import { useState } from "react";
 
 export default function AdminUserForm({ adminUser, onClose, onUpdated }) {
   const [form, setForm] = useState(adminUser || { email: "", password: "" });
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const saveAdmin = async () => {
     const url = adminUser.id
       ? `${import.meta.env.VITE_BACKEND_URL}/api/admin-user/${adminUser.id}`
       : `${import.meta.env.VITE_BACKEND_URL}/api/admin-user`;
 
     const method = adminUser.id ? "PUT" : "POST";
-
     await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -36,27 +33,15 @@ export default function AdminUserForm({ adminUser, onClose, onUpdated }) {
           </div>
 
           <div className="modal-body">
-
             <div className="mb-3">
               <label className="form-label">Email</label>
-              <input
-                name="email"
-                className="form-control"
-                value={form.email}
-                onChange={handleChange}
-              />
+              <input name="email" className="form-control" value={form.email} onChange={handleChange}/>
             </div>
 
             {!adminUser.id && (
               <div className="mb-3">
                 <label className="form-label">Password</label>
-                <input
-                  name="password"
-                  type="password"
-                  className="form-control"
-                  value={form.password}
-                  onChange={handleChange}
-                />
+                <input name="password" type="password" className="form-control" value={form.password} onChange={handleChange}/>
               </div>
             )}
           </div>

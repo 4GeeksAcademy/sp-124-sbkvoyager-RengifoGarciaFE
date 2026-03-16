@@ -6,9 +6,7 @@ export default function UbicationFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const isEdit = Boolean(id);
-
   const returnTo = location.state?.from || "/ubications";
-
   const [formData, setFormData] = useState({
     country: "",
     city: "",
@@ -42,7 +40,6 @@ export default function UbicationFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const url = isEdit
       ? `${import.meta.env.VITE_BACKEND_URL}api/ubications/${id}`
       : `${import.meta.env.VITE_BACKEND_URL}api/ubications`;
@@ -60,69 +57,17 @@ export default function UbicationFormPage() {
 
   return (
     <div className="container mt-5">
-      <h1 className="text-center mb-4">
-        {isEdit ? "Editar Ubicación" : "Crear Ubicación"}
-      </h1>
-
-      <form
-        onSubmit={handleSubmit}
-        className="card p-4 shadow mx-auto"
-        style={{ maxWidth: "500px" }}
-      >
-        <input
-          className="form-control mb-3"
-          name="country"
-          placeholder="País"
-          value={formData.country}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          className="form-control mb-3"
-          name="city"
-          placeholder="Ciudad"
-          value={formData.city}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          className="form-control mb-3"
-          name="zip_code"
-          placeholder="Código Postal"
-          value={formData.zip_code}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          className="form-control mb-3"
-          name="street"
-          placeholder="Calle"
-          value={formData.street}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          className="form-control mb-3"
-          name="number"
-          placeholder="Número"
-          value={formData.number}
-          onChange={handleChange}
-          required
-        />
-
+      <h1 className="text-center mb-4"> {isEdit ? "Editar Ubicación" : "Crear Ubicación"}</h1>
+      <form onSubmit={handleSubmit} className="card p-4 shadow mx-auto" style={{ maxWidth: "500px" }}>
+        <input className="form-control mb-3" name="country" placeholder="País" value={formData.country} onChange={handleChange} required/>
+        <input className="form-control mb-3" name="city" placeholder="Ciudad" value={formData.city} onChange={handleChange} required/>
+        <input className="form-control mb-3" name="zip_code" placeholder="Código Postal" value={formData.zip_code} onChange={handleChange} required/>
+        <input className="form-control mb-3" name="street" placeholder="Calle" value={formData.street} onChange={handleChange} required/>
+        <input className="form-control mb-3" name="number" placeholder="Número" value={formData.number} onChange={handleChange} required/>
         <div className="d-flex justify-content-between">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => navigate(returnTo)}
-          >
+          <button type="button" className="btn btn-secondary" onClick={() => navigate(returnTo)}>
             Cancelar
           </button>
-
           <button type="submit" className="btn btn-primary">
             {isEdit ? "Guardar Cambios" : "Crear Ubicación"}
           </button>
