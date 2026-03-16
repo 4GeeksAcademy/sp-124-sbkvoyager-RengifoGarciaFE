@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function UbicationFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const isEdit = Boolean(id);
+
+  const returnTo = location.state?.from || "/ubications";
 
   const [formData, setFormData] = useState({
     country: "",
@@ -29,7 +31,7 @@ export default function UbicationFormPage() {
           });
         });
     }
-  }, [id]);
+  }, [id, isEdit]);
 
   const handleChange = (e) => {
     setFormData({
@@ -53,7 +55,7 @@ export default function UbicationFormPage() {
       body: JSON.stringify(formData)
     });
 
-    navigate("/ubications");
+    navigate(returnTo);
   };
 
   return (
@@ -95,12 +97,12 @@ export default function UbicationFormPage() {
         />
 
         <input
-        className="form-control mb-3"
-        name="street"
-        placeholder="Calle"
-        value={formData.street}
-        onChange={handleChange}
-        required
+          className="form-control mb-3"
+          name="street"
+          placeholder="Calle"
+          value={formData.street}
+          onChange={handleChange}
+          required
         />
 
         <input
@@ -116,7 +118,7 @@ export default function UbicationFormPage() {
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => navigate("/ubications")}
+            onClick={() => navigate(returnTo)}
           >
             Cancelar
           </button>

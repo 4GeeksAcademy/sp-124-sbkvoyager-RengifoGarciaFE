@@ -40,7 +40,9 @@ import ProtectedPage from "./pages/ProtectedPage";
 
 import ProfilePage from "./pages/ProfilePage";
 
+import AdminLoginPage from "./pages/AdminLoginPage";
 
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -79,10 +81,12 @@ export const router = createBrowserRouter(
       <Route path="images-post/:id/edit" element={<ImageFormPage />} />
 
       <Route path="login" element={<LoginPage />} />
-    <Route path="protected" element={<ProtectedPage />} />
-    <Route path="profile" element={<ProfilePage />} />
-    <Route path="admin-panel" element={<AdminPanelPage />} />
-    <Route path="demo" element={<Demo />} />
+      <Route path="forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="admin-login" element={<AdminLoginPage />} />
+      <Route path="protected" element={<ProtectedPage />} />
+      <Route path="profile" element={<ProfilePage />} />
+      <Route path="admin-panel" element={<AdminPanelPage />} />
+      <Route path="demo" element={<Demo />} />
     </Route>
   )
 );

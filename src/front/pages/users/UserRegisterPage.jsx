@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
 	const navigate = useNavigate();
@@ -138,7 +138,9 @@ export default function RegisterPage() {
 								<div className="mb-3">
 								<small>
 									¿No encuentras tu ubicación?{" "}
-									<a href="/ubications/new">Crear nueva ubicación</a>
+										<Link to="/ubications/new" state={{ from: "/register" }}>
+											Crear nueva ubicación
+										</Link>
 								</small>
 								</div>
 

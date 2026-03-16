@@ -126,7 +126,9 @@ class Post(db.Model):
             "description": self.description,
             "is_approved": self.is_approved,
             "user_id": self.user_id,
-            "ubication_id": self.ubication_id
+            "ubication_id": self.ubication_id,
+            "user": self.user.serialize() if self.user else None,
+            "ubication": self.ubication.serialize() if self.ubication else None
         }
 
 

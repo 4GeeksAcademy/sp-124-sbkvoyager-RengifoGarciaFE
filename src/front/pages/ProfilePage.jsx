@@ -105,9 +105,21 @@ export default function ProfilePage() {
                                         <p className="mb-1"><strong>Estilos:</strong> {post.styles}</p>
                                         <p className="mb-3"><strong>Horario:</strong> {post.schedule}</p>
 
-                                        <a href={`/posts/${post.id}`} className="btn btn-sm btn-outline-primary">
-                                            Ver detalle
-                                        </a>
+                                        <div className="d-flex gap-2 flex-wrap">
+											<a
+												href={`/posts/${post.id}`}
+												className="btn btn-sm btn-outline-primary"
+											>
+												Ver detalle
+											</a>
+
+											<a
+												href={`/posts/${post.id}/edit`}
+												className="btn btn-sm btn-outline-success"
+											>
+												Editar
+											</a>
+										</div>
                                     </div>
                                 </div>
 							))}

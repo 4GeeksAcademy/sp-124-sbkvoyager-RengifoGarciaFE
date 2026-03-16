@@ -4,6 +4,7 @@ from flask import request, jsonify, Blueprint
 from api.models import db, User, AdminUser, Ubication, Post, Comment, ImagePost
 from flask_cors import CORS
 from datetime import date
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 api = Blueprint('api', __name__)
@@ -74,7 +75,7 @@ def add_admin_user():
 
     new_admin_user = AdminUser(
         email=data["email"],
-        password=data["password"],
+        password=generate_password_hash(data["password"]),
         is_active=True
     )
 
@@ -155,7 +156,7 @@ def create_user():
     new_user = User(
         nickname=data["nickname"],
         email=data["email"],
-        password=data["password"],
+        password=generate_password_hash(data["password"]),
         name=data["name"],
         surname=data["surname"],
         birthdate=date.fromisoformat(data["birthdate"]),
@@ -676,9 +677,9 @@ def create_token():
     if email is None or password is None:
         return jsonify({"msg": "Email and password are required"}), 400
 
-    user = User.query.filter_by(email=email, password=password).first()
+    user = User.query.filter_by(email=email).first()
 
-    if user is None:
+    if user is None or not check_password_hash(user.password, password):
         return jsonify({"msg": "Bad email or password"}), 401
 
     access_token = create_access_token(identity=str(user.id))
@@ -697,9 +698,9 @@ def create_admin_token():
     if email is None or password is None:
         return jsonify({"msg": "Email and password are required"}), 400
 
-    admin = AdminUser.query.filter_by(email=email, password=password).first()
+    admin = AdminUser.query.filter_by(email=email).first()
 
-    if admin is None:
+    if admin is None or not check_password_hash(admin.password, password):
         return jsonify({"msg": "Bad admin email or password"}), 401
 
     access_token = create_access_token(identity=f"admin:{admin.id}")
@@ -743,3 +744,23 @@ def get_me():
 
     return jsonify(user.serialize()), 200
 
+
+@api.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json or {}
+
+    email = data.get("email")
+    new_password = data.get("new_password")
+
+    if not email or not new_password:
+        return jsonify({"msg": "Email and new password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        return jsonify({"msg": "User not found"}), 404
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({"msg": "Password updated successfully"}), 200

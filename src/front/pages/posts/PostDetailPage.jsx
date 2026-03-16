@@ -1,16 +1,53 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import PostMap from "../../components/PostMap";
 
 export default function PostDetailPage() {
 	const { id } = useParams();
+	const navigate = useNavigate();
 
 	const [post, setPost] = useState(null);
 	const [comments, setComments] = useState([]);
 	const [images, setImages] = useState([]);
+	const [currentUser, setCurrentUser] = useState(null);
 	const [newComment, setNewComment] = useState("");
 	const [newPuntuation, setNewPuntuation] = useState(5);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(true);
+
+	const adminToken = localStorage.getItem("admin-token");
+	const userToken = localStorage.getItem("jwt-token");
+
+	const fetchCurrentUser = async () => {
+		if (!userToken) {
+			setCurrentUser(null);
+			return;
+		}
+
+		try {
+			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/me`, {
+				headers: {
+					Authorization: "Bearer " + userToken
+				}
+			});
+
+			if (res.status === 401 || res.status === 403 || res.status === 404) {
+				localStorage.removeItem("jwt-token");
+				setCurrentUser(null);
+				return;
+			}
+
+			if (!res.ok) {
+				setCurrentUser(null);
+				return;
+			}
+
+			const data = await res.json();
+			setCurrentUser(data);
+		} catch (err) {
+			setCurrentUser(null);
+		}
+	};
 
 	const loadPostData = async () => {
 		try {
@@ -31,7 +68,6 @@ export default function PostDetailPage() {
 			if (!imagesResp.ok) throw new Error("No se pudieron cargar las imágenes");
 			const imagesData = await imagesResp.json();
 			setImages(imagesData);
-
 		} catch (err) {
 			setError(err.message);
 		} finally {
@@ -41,14 +77,118 @@ export default function PostDetailPage() {
 
 	useEffect(() => {
 		loadPostData();
+		fetchCurrentUser();
 	}, [id]);
+
+	const canEditPost = () => {
+		if (adminToken) return true;
+		if (!currentUser || !post) return false;
+
+		if (post.user && post.user.id) {
+			return currentUser.id === post.user.id;
+		}
+
+		if (post.user_id) {
+			return currentUser.id === post.user_id;
+		}
+
+		return false;
+	};
+
+	const handleDeletePost = async () => {
+		if (!adminToken) {
+			alert("Solo un admin puede eliminar posts");
+			return;
+		}
+
+		const confirmed = window.confirm("¿Seguro que quieres eliminar este post?");
+		if (!confirmed) return;
+
+		try {
+			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/posts/${id}`, {
+				method: "DELETE",
+				headers: {
+					Authorization: "Bearer " + adminToken
+				}
+			});
+
+			const data = await resp.json();
+
+			if (!resp.ok) {
+				alert(data.msg || "No se pudo eliminar el post");
+				return;
+			}
+
+			navigate("/posts");
+		} catch (err) {
+			alert("Error al eliminar el post");
+		}
+	};
+
+	const handleDeleteComment = async (commentId) => {
+		if (!adminToken) {
+			alert("Solo un admin puede eliminar comentarios");
+			return;
+		}
+
+		const confirmed = window.confirm("¿Seguro que quieres eliminar este comentario?");
+		if (!confirmed) return;
+
+		try {
+			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/comments/${commentId}`, {
+				method: "DELETE",
+				headers: {
+					Authorization: "Bearer " + adminToken
+				}
+			});
+
+			const data = await resp.json();
+
+			if (!resp.ok) {
+				alert(data.msg || "No se pudo eliminar el comentario");
+				return;
+			}
+
+			await loadPostData();
+		} catch (err) {
+			alert("Error al eliminar el comentario");
+		}
+	};
+
+	const handleDeleteImage = async (imageId) => {
+		if (!adminToken) {
+			alert("Solo un admin puede eliminar imágenes");
+			return;
+		}
+
+		const confirmed = window.confirm("¿Seguro que quieres eliminar esta imagen?");
+		if (!confirmed) return;
+
+		try {
+			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/images-post/${imageId}`, {
+				method: "DELETE",
+				headers: {
+					Authorization: "Bearer " + adminToken
+				}
+			});
+
+			const data = await resp.json();
+
+			if (!resp.ok) {
+				alert(data.msg || "No se pudo eliminar la imagen");
+				return;
+			}
+
+			await loadPostData();
+		} catch (err) {
+			alert("Error al eliminar la imagen");
+		}
+	};
 
 	const handleCommentSubmit = async (e) => {
 		e.preventDefault();
 
-		const token = localStorage.getItem("jwt-token");
-
-		if (!token) {
+		if (!userToken) {
 			alert("Debes iniciar sesión para comentar");
 			return;
 		}
@@ -58,7 +198,7 @@ export default function PostDetailPage() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer " + token
+					"Authorization": "Bearer " + userToken
 				},
 				body: JSON.stringify({
 					text: newComment,
@@ -70,7 +210,7 @@ export default function PostDetailPage() {
 			if (!resp.ok) {
 				const errorData = await resp.json();
 				console.error(errorData);
-				alert("No se pudo crear el comentario");
+				alert(errorData.msg || "No se pudo crear el comentario");
 				return;
 			}
 
@@ -113,7 +253,30 @@ export default function PostDetailPage() {
 				<div className="col-lg-7">
 					<div className="card shadow border-0">
 						<div className="card-body p-4">
-							<span className="badge bg-primary mb-3">{post.type}</span>
+							<div className="d-flex justify-content-between align-items-start mb-3">
+								<span className="badge bg-primary">{post.type}</span>
+
+								<div className="d-flex gap-2">
+									{canEditPost() && (
+										<button
+											className="btn btn-outline-primary btn-sm"
+											onClick={() => navigate(`/posts/${post.id}/edit`)}
+										>
+											Editar
+										</button>
+									)}
+
+									{adminToken && (
+										<button
+											className="btn btn-danger btn-sm"
+											onClick={handleDeletePost}
+										>
+											Eliminar
+										</button>
+									)}
+								</div>
+							</div>
+
 							<h2 className="mb-3">{post.name}</h2>
 
 							<div className="row mb-3">
@@ -132,10 +295,20 @@ export default function PostDetailPage() {
 							<p>{post.description}</p>
 
 							{post.ubication && (
-								<p className="mt-3">
-									<strong>Ubicación:</strong> {post.ubication.city}, {post.ubication.country}
-								</p>
+								<div className="mt-3">
+									<p className="mb-1">
+										<strong>Ubicación:</strong> {post.ubication.city}, {post.ubication.country}
+									</p>
+									<p className="mb-1">
+										<strong>Dirección:</strong> {post.ubication.street} {post.ubication.number}
+									</p>
+									<p className="mb-0">
+										<strong>Código postal:</strong> {post.ubication.zip_code}
+									</p>
+								</div>
 							)}
+
+							{post.ubication && <PostMap ubication={post.ubication} />}
 						</div>
 					</div>
 
@@ -148,8 +321,23 @@ export default function PostDetailPage() {
 							) : (
 								comments.map((comment) => (
 									<div key={comment.id} className="border rounded p-3 mb-3 bg-light">
-										<p className="mb-1">{comment.text}</p>
-										<p className="mb-1"><strong>Puntuación:</strong> ⭐ {comment.puntuation}</p>
+										<div className="d-flex justify-content-between align-items-start gap-2">
+											<div>
+												<p className="mb-1">{comment.text}</p>
+												<p className="mb-1">
+													<strong>Puntuación:</strong> ⭐ {comment.puntuation}
+												</p>
+											</div>
+
+											{adminToken && (
+												<button
+													className="btn btn-danger btn-sm"
+													onClick={() => handleDeleteComment(comment.id)}
+												>
+													Eliminar
+												</button>
+											)}
+										</div>
 									</div>
 								))
 							)}
@@ -169,13 +357,23 @@ export default function PostDetailPage() {
 							) : (
 								<div className="d-flex flex-column gap-3">
 									{images.map((img) => (
-										<img
-											key={img.id}
-											src={img.url}
-											alt="Imagen del post"
-											className="img-fluid rounded shadow-sm"
-											style={{ maxHeight: "260px", objectFit: "cover", width: "100%" }}
-										/>
+										<div key={img.id} className="position-relative">
+											<img
+												src={img.url}
+												alt="Imagen del post"
+												className="img-fluid rounded shadow-sm"
+												style={{ maxHeight: "260px", objectFit: "cover", width: "100%" }}
+											/>
+
+											{adminToken && (
+												<button
+													className="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+													onClick={() => handleDeleteImage(img.id)}
+												>
+													Eliminar
+												</button>
+											)}
+										</div>
 									))}
 								</div>
 							)}

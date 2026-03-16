@@ -1,16 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+	const navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
 
 		try {
-			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/token`, {
+			const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/token`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ email, password })
@@ -23,7 +25,9 @@ export default function LoginPage() {
 				return;
 			}
 
+			localStorage.removeItem("admin-token");
 			localStorage.setItem("jwt-token", data.token);
+			window.dispatchEvent(new Event("auth-changed"));
 			navigate("/profile");
 		} catch (err) {
 			setError("Server error");
@@ -62,6 +66,13 @@ export default function LoginPage() {
 				<button type="submit" className="btn btn-primary w-100">
 					Entrar
 				</button>
+
+				<div className="mt-3 text-center">
+					<small>
+						¿Olvidaste tu contraseña?{" "}
+						<a href="/forgot-password">Restablécela aquí</a>
+					</small>
+				</div>
 			</form>
 		</div>
 	);

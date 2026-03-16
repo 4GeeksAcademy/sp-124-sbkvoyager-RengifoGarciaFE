@@ -3,46 +3,44 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function PostsPage() {
     const [posts, setPosts] = useState([]);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [postImages, setPostImages] = useState({});
     const navigate = useNavigate();
 
     const adminToken = localStorage.getItem("admin-token");
     const userToken = localStorage.getItem("jwt-token");
 
+    const placeholderImage =
+        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80";
+
     const fetchPosts = async () => {
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/posts`);
         const data = await res.json();
         setPosts(data);
-    };
 
-    const fetchCurrentUser = async () => {
-        if (!userToken) {
-            setCurrentUser(null);
-            return;
-        }
+        const imagesMap = {};
 
-        try {
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/me`, {
-                headers: {
-                    Authorization: "Bearer " + userToken
+        await Promise.all(
+            data.map(async (post) => {
+                try {
+                    const imgRes = await fetch(
+                        `${import.meta.env.VITE_BACKEND_URL}api/posts/${post.id}/images`
+                    );
+                    const imgData = await imgRes.json();
+
+                    if (Array.isArray(imgData) && imgData.length > 0) {
+                        imagesMap[post.id] = imgData[0].url;
+                    }
+                } catch (error) {
+                    console.error("Error loading post image", error);
                 }
-            });
+            })
+        );
 
-            if (!res.ok) {
-                setCurrentUser(null);
-                return;
-            }
-
-            const data = await res.json();
-            setCurrentUser(data);
-        } catch (error) {
-            setCurrentUser(null);
-        }
+        setPostImages(imagesMap);
     };
 
     useEffect(() => {
         fetchPosts();
-        fetchCurrentUser();
     }, []);
 
     const deletePost = async (id) => {
@@ -63,22 +61,6 @@ export default function PostsPage() {
         }
     };
 
-    const canEditPost = (post) => {
-        if (adminToken) return true;
-
-        if (!currentUser) return false;
-
-        if (post.user && post.user.id) {
-            return currentUser.id === post.user.id;
-        }
-
-        if (post.user_id) {
-            return currentUser.id === post.user_id;
-        }
-
-        return false;
-    };
-
     return (
         <div className="container mt-4">
             <div className="position-relative my-4">
@@ -97,28 +79,34 @@ export default function PostsPage() {
             <div className="row">
                 {posts.map((p) => (
                     <div key={p.id} className="col-md-4">
-                        <div className="card mb-3 shadow-sm">
-                            <div className="card-body">
-                                <p className="card-text text-center fw-bold">
+                        <div className="card mb-3 shadow-sm h-100">
+                            <img
+                                src={postImages[p.id] || placeholderImage}
+                                alt={p.name}
+                                className="card-img-top"
+                                style={{ height: "220px", objectFit: "cover" }}
+                            />
+
+                            <div className="card-body d-flex flex-column">
+                                <p className="card-text text-center fw-bold mb-2">
                                     {p.name}
                                 </p>
 
-                                <div className="d-flex justify-content-center gap-2 flex-wrap">
+                                <p className="text-center text-muted small mb-2">
+                                    {p.type}
+                                </p>
+
+                                <p className="text-center small mb-3">
+                                    {p.styles}
+                                </p>
+
+                                <div className="d-flex justify-content-center gap-2 flex-wrap mt-auto">
                                     <Link
                                         to={`/posts/${p.id}`}
                                         className="btn btn-light"
                                     >
                                         Ver ficha
                                     </Link>
-
-                                    {canEditPost(p) && (
-                                        <button
-                                            className="btn btn-light"
-                                            onClick={() => navigate(`/posts/${p.id}/edit`)}
-                                        >
-                                            Editar
-                                        </button>
-                                    )}
 
                                     {adminToken && (
                                         <button
