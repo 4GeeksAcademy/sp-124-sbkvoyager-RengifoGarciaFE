@@ -5,10 +5,7 @@ from datetime import date
 
 db = SQLAlchemy()
 
-
-# ======================
-# ADMIN
-# ======================
+#admin
 class AdminUser(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
@@ -21,10 +18,7 @@ class AdminUser(db.Model):
             "email": self.email
         }
 
-
-# ======================
-# UBICATION
-# ======================
+#ubication
 class Ubication(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     country: Mapped[str] = mapped_column(nullable=False)
@@ -46,10 +40,7 @@ class Ubication(db.Model):
             "number": self.number
         }
 
-
-# ======================
-# USER
-# ======================
+#user
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     nickname: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
@@ -81,9 +72,7 @@ class User(db.Model):
         }
 
 
-# ======================
-# POST
-# ======================
+#post
 class Post(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     type: Mapped[str] = mapped_column(String(10), nullable=False)
@@ -126,13 +115,12 @@ class Post(db.Model):
             "description": self.description,
             "is_approved": self.is_approved,
             "user_id": self.user_id,
-            "ubication_id": self.ubication_id
+            "ubication_id": self.ubication_id,
+            "user": self.user.serialize() if self.user else None,
+            "ubication": self.ubication.serialize() if self.ubication else None
         }
 
-
-# ======================
-# COMMENT
-# ======================
+#comment
 class Comment(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -157,10 +145,7 @@ class Comment(db.Model):
             "user_id": self.user_id
         }
 
-
-# ======================
-# IMAGE POST
-# ======================
+#image post
 class ImagePost(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(255), nullable=False)

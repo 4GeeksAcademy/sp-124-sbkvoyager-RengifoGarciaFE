@@ -7,7 +7,6 @@ import PropTypes from "prop-types";
 
 const ScrollToTop = ({ location, children }) => {
     const prevLocation = useRef(location);
-
     useEffect(() => {
         if (location !== prevLocation.current) {
             window.scrollTo(0, 0);

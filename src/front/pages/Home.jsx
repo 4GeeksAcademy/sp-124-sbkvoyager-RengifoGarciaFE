@@ -1,36 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { FaMapMarkerAlt, FaPenFancy, FaComments, FaMusic } from "react-icons/fa";
 export const Home = () => {
 	const token = localStorage.getItem("jwt-token");
 	const [posts, setPosts] = useState([]);
 	const [postImages, setPostImages] = useState({});
-
 	useEffect(() => {
 		const loadPostsAndImages = async () => {
 			try {
 				const postsResp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/posts`);
 				const postsData = await postsResp.json();
-
 				setPosts(postsData);
-
 				const imagesMap = {};
-
 				await Promise.all(
 					postsData.slice(0, 6).map(async (post) => {
 						try {
 							const imgResp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/posts/${post.id}/images`);
 							const imgData = await imgResp.json();
-
 							if (imgData.length > 0) {
 								imagesMap[post.id] = imgData[0].url;
 							}
 						} catch (err) {
-							console.error(`Error loading images for post ${post.id}`, err);
+							console.error(err);
 						}
 					})
 				);
-
 				setPostImages(imagesMap);
 			} catch (err) {
 				console.error("Error loading posts:", err);
@@ -39,99 +33,81 @@ export const Home = () => {
 
 		loadPostsAndImages();
 	}, []);
-
 	const placeholderImage =
 		"https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80";
-
 	return (
 		<div className="container py-5">
-			{/* HERO */}
-			<div className="row align-items-center mb-5">
-				<div className="col-lg-7">
-					<h1 className="display-4 fw-bold mb-3">SBKVoyager</h1>
-					<p className="lead text-muted mb-4">
-						Descubre escuelas, sesiones, talleres y lugares donde bailar salsa,
-						bachata y kizomba. Comparte tus sitios favoritos y encuentra nuevos
-						planes de baile.
-					</p>
-
-					<div className="d-flex flex-wrap gap-3">
-						<Link to="/posts" className="btn btn-primary btn-lg">
-							Explorar publicaciones
-						</Link>
-
-						{token ? (
-							<>
-								<Link to="/posts/new" className="btn btn-success btn-lg">
-									Crear publicación
-								</Link>
-								<Link to="/profile" className="btn btn-outline-dark btn-lg">
-									Mi perfil
-								</Link>
-							</>
-						) : (
-							<Link to="/login" className="btn btn-outline-primary btn-lg">
-								Iniciar sesión
+			<div className="hero-home mb-5">
+				<div className="row align-items-center">
+					<div className="col-lg-7">
+						<h1 className="hero-title">SBKVoyager</h1>
+						<p className="hero-subtitle">
+							Descubre escuelas, sesiones y talleres donde bailar salsa,
+							bachata y kizomba. Encuentra tu próximo plan de baile.
+						</p>
+						<div className="d-flex flex-wrap gap-3 mt-4">
+							<Link to="/posts" className="btn btn-danger btn-lg">
+								Explorar
 							</Link>
-						)}
+							{token ? (
+								<>
+									<Link to="/posts/new" className="btn btn-outline-danger btn-lg">
+										Publicar evento
+									</Link>
+								</>
+							) : (
+								<Link to="/login" className="btn btn-outline-dark btn-lg">
+									Iniciar sesión
+								</Link>
+							)}
+						</div>
 					</div>
-				</div>
-
-				<div className="col-lg-5 mt-4 mt-lg-0">
-					<div className="card shadow border-0">
-						<div className="card-body p-4">
-							<h4 className="mb-3">¿Qué puedes hacer?</h4>
-							<ul className="list-group list-group-flush">
-								<li className="list-group-item">📍 Encontrar sitios para bailar</li>
-								<li className="list-group-item">📝 Publicar escuelas, sesiones y talleres</li>
-								<li className="list-group-item">💬 Comentar experiencias</li>
-								<li className="list-group-item">⭐ Valorar lugares y eventos</li>
-							</ul>
+					<div className="col-lg-5 mt-4 mt-lg-0">
+						<div className="feature-card-main">
+							<h4 className="mb-4">¿Qué puedes hacer?</h4>
+							<div className="d-flex align-items-center mb-3 feature-line">
+								<FaMapMarkerAlt className="feature-icon" />
+								<span>Encontrar sitios donde bailar</span>
+							</div>
+							<div className="d-flex align-items-center mb-3 feature-line">
+								<FaPenFancy className="feature-icon" />
+								<span>Publicar escuelas, sesiones y talleres</span>
+							</div>
+							<div className="d-flex align-items-center mb-3 feature-line">
+								<FaComments className="feature-icon" />
+								<span>Compartir opiniones y experiencias</span>
+							</div>
+							<div className="d-flex align-items-center feature-line">
+								<FaMusic className="feature-icon" />
+								<span>Explorar la comunidad SBK</span>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			{/* INFO CARDS */}
 			<div className="row g-4 mb-5">
 				<div className="col-md-4">
-					<div className="card h-100 shadow-sm border-0">
-						<div className="card-body">
-							<h5 className="card-title">Escuelas</h5>
-							<p className="card-text text-muted">
-								Encuentra academias y escuelas para aprender y mejorar tu baile.
-							</p>
-						</div>
+					<div className="info-card-home">
+						<h5>Escuelas</h5>
+						<p>Encuentra academias y espacios para aprender y mejorar tu baile.</p>
 					</div>
 				</div>
-
 				<div className="col-md-4">
-					<div className="card h-100 shadow-sm border-0">
-						<div className="card-body">
-							<h5 className="card-title">Sesiones y fiestas</h5>
-							<p className="card-text text-muted">
-								Descubre sociales, fiestas y eventos para salir a bailar.
-							</p>
-						</div>
+					<div className="info-card-home">
+						<h5>Sesiones y fiestas</h5>
+						<p>Descubre sociales, fiestas y eventos para salir a bailar.</p>
 					</div>
 				</div>
-
 				<div className="col-md-4">
-					<div className="card h-100 shadow-sm border-0">
-						<div className="card-body">
-							<h5 className="card-title">Comunidad</h5>
-							<p className="card-text text-muted">
-								Comparte opiniones, deja comentarios y ayuda a otros bailarines.
-							</p>
-						</div>
+					<div className="info-card-home">
+						<h5>Comunidad</h5>
+						<p>Comparte opiniones y ayuda a otros bailarines con tus experiencias.</p>
 					</div>
 				</div>
 			</div>
-
-			{/* POSTS */}
 			<div className="d-flex justify-content-between align-items-center mb-4">
-				<h2 className="mb-0">Últimas publicaciones</h2>
-				<Link to="/posts" className="btn btn-outline-primary">
+				<h2 className="section-title">¿Dónde bailar hoy?</h2>
+				<Link to="/posts" className="btn btn-outline-danger">
 					Ver todas
 				</Link>
 			</div>
@@ -146,38 +122,18 @@ export const Home = () => {
 				) : (
 					posts.slice(0, 6).map((post) => (
 						<div key={post.id} className="col-md-6 col-lg-4">
-							<div className="card h-100 shadow-sm border-0 overflow-hidden">
-								<img
-									src={postImages[post.id] || placeholderImage}
-									alt={post.name}
-									className="card-img-top"
-									style={{ height: "220px", objectFit: "cover" }}
-								/>
-
-								<div className="card-body d-flex flex-column">
-									<span className="badge bg-primary mb-2 align-self-start">
+							<div className="post-card-home h-100">
+								<img src={postImages[post.id] || placeholderImage} alt={post.name} className="post-card-home-img"/>
+								<div className="p-3 d-flex flex-column h-100">
+									<span className="badge bg-danger mb-2 align-self-start">
 										{post.type}
 									</span>
 
-									<h5 className="card-title">{post.name}</h5>
-
-									<p className="card-text text-muted mb-2">
-										{post.styles}
-									</p>
-
-									<p className="card-text">
-										<strong>Horario:</strong> {post.schedule}
-									</p>
-
-									<p className="card-text text-muted small flex-grow-1">
-										{post.description}
-									</p>
-
-									<Link
-										to={`/posts/${post.id}`}
-										className="btn btn-primary mt-auto"
-									>
-										Ver detalle
+									<h5>{post.name}</h5>
+									<p className="text-muted mb-2">{post.styles}</p>
+									<p><strong>Horario:</strong> {post.schedule}</p>
+									<Link to={`/posts/${post.id}`} className="btn btn-danger mt-auto">
+										¡Ver más!
 									</Link>
 								</div>
 							</div>

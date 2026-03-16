@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 export default function UserDetailPage() {
     const { id } = useParams();
     const [user, setUser] = useState(null);
-
     const fetchUser = async () => {
         const res = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`
@@ -16,13 +15,10 @@ export default function UserDetailPage() {
     useEffect(() => {
         fetchUser();
     }, []);
-
     if (!user) return <p className="text-center mt-5">Cargando...</p>;
-
     return (
         <div className="container mt-4">
             <h1>Ficha del Usuario</h1>
-
             <div className="card mt-4 shadow">
                 <div className="card-body">
                     <p><strong>Nickname:</strong> {user.nickname}</p>
@@ -31,9 +27,7 @@ export default function UserDetailPage() {
                     <p><strong>Bailarín profesional:</strong> {user.is_professional_dancer ? "Sí" : "No"}</p>
 
                     {user.ubication && (
-                        <p>
-                            <strong>Ubicación:</strong> {user.ubication.city}, {user.ubication.country}
-                        </p>
+                        <p><strong>Ubicación:</strong> {user.ubication.city}, {user.ubication.country}</p>
                     )}
 
                     <Link to="/users" className="btn btn-secondary mt-3">

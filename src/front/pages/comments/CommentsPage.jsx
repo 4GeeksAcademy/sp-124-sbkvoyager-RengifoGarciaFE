@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function CommentsPage() {
   const [comments, setComments] = useState([]);
-  const navigate = useNavigate();
-
+  const adminToken = localStorage.getItem("admin-token");
   const fetchComments = async () => {
-    const res = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}api/comments`
-    );
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/comments`);
     const data = await res.json();
     setComments(data);
   };
@@ -18,27 +15,35 @@ export default function CommentsPage() {
   }, []);
 
   const deleteComment = async (id) => {
+    if (!adminToken) {
+      alert("Solo un admin puede eliminar comentarios");
+      return;
+    }
+
     if (!window.confirm("¿Eliminar comentario?")) return;
 
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}api/comments/${id}`,
-      { method: "DELETE" }
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + adminToken
+        }
+      }
     );
 
-    if (res.ok) fetchComments();
+    if (res.ok) {
+      fetchComments();
+    } else {
+      const data = await res.json();
+      alert(data.msg || "No se pudo eliminar el comentario");
+    }
   };
 
   return (
     <div className="container mt-4">
       <div className="position-relative my-4">
         <h1 className="text-center m-0">COMMENTS</h1>
-
-        <button
-          className="btn btn-success position-absolute top-50 end-0 translate-middle-y"
-          onClick={() => navigate("/comments/new")}
-        >
-          Crear comentario
-        </button>
       </div>
 
       <div className="row">
@@ -47,19 +52,17 @@ export default function CommentsPage() {
             <div className="card mb-3 shadow-sm">
               <div className="card-body">
                 <p className="fw-bold text-center">{c.text}</p>
-                <p className="text-center">⭐ {c.puntuacion}</p>
-
-                <div className="d-flex justify-content-center gap-2">
+                <p className="text-center">⭐ {c.puntuation}</p>
+                <div className="d-flex justify-content-center gap-2 flex-wrap">
                   <Link to={`/comments/${c.id}`} className="btn btn-light">
                     Ver
                   </Link>
 
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => deleteComment(c.id)}
-                  >
-                    Eliminar
-                  </button>
+                  {adminToken && (
+                    <button className="btn btn-danger" onClick={() => deleteComment(c.id)}>
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -67,9 +70,7 @@ export default function CommentsPage() {
         ))}
 
         {comments.length === 0 && (
-          <p className="text-center mt-5 text-muted">
-            No hay comentarios
-          </p>
+          <p className="text-center mt-5 text-muted"> No hay comentarios</p>
         )}
       </div>
     </div>

@@ -4,15 +4,14 @@ from flask import request, jsonify, Blueprint
 from api.models import db, User, AdminUser, Ubication, Post, Comment, ImagePost
 from flask_cors import CORS
 from datetime import date
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 api = Blueprint('api', __name__)
 CORS(api)
 
 
-# -----------------------------
-# HELPERS JWT
-# -----------------------------
+#jwt helpers
 def get_user_id_from_token():
     identity = get_jwt_identity()
 
@@ -42,9 +41,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
-# -----------------------------
-# ADMIN USERS
-# -----------------------------
+#admin users
 @api.route('/admin-user', methods=['GET'])
 def get_admins():
     admins_user = AdminUser.query.all()
@@ -74,7 +71,7 @@ def add_admin_user():
 
     new_admin_user = AdminUser(
         email=data["email"],
-        password=data["password"],
+        password=generate_password_hash(data["password"]),
         is_active=True
     )
 
@@ -109,9 +106,7 @@ def delete_admin_user(admin_user_id):
     return jsonify({"msg": "Admin deleted"}), 200
 
 
-# -----------------------------
-# USERS
-# -----------------------------
+#users
 @api.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -155,7 +150,7 @@ def create_user():
     new_user = User(
         nickname=data["nickname"],
         email=data["email"],
-        password=data["password"],
+        password=generate_password_hash(data["password"]),
         name=data["name"],
         surname=data["surname"],
         birthdate=date.fromisoformat(data["birthdate"]),
@@ -210,9 +205,7 @@ def delete_user_by_id(user_id):
     return jsonify({"msg": "User deleted"}), 200
 
 
-# -----------------------------
-# UBICATIONS
-# -----------------------------
+#ubications
 @api.route('/ubications', methods=['GET'])
 def get_ubications():
     ubications = Ubication.query.order_by(Ubication.city).all()
@@ -277,9 +270,7 @@ def delete_ubication(ubication_id):
     return jsonify({"msg": "Ubication deleted"}), 200
 
 
-# -----------------------------
-# POSTS
-# -----------------------------
+#posts
 @api.route('/posts', methods=['GET'])
 def get_posts():
     posts = Post.query.filter_by(is_approved=True).all()
@@ -367,10 +358,17 @@ def create_post():
 
 
 @api.route('/posts/<int:post_id>', methods=['PUT'])
+@jwt_required()
 def update_post(post_id):
     post = Post.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
+
+    user_id = get_user_id_from_token()
+    admin_id = get_admin_id_from_token()
+
+    if admin_id is None and user_id != post.user_id:
+        return jsonify({"msg": "You can only edit your own posts"}), 403
 
     data = request.json or {}
 
@@ -386,8 +384,10 @@ def update_post(post_id):
             return jsonify({"msg": "Invalid post type"}), 400
 
     post.type = data.get("type", post.type)
+
     if "event_date" in data:
         post.event_date = date.fromisoformat(data["event_date"])
+
     post.schedule = data.get("schedule", post.schedule)
     post.styles = data.get("styles", post.styles)
     post.name = data.get("name", post.name)
@@ -398,9 +398,13 @@ def update_post(post_id):
     db.session.commit()
     return jsonify(post.serialize()), 200
 
-
 @api.route('/posts/<int:post_id>', methods=['DELETE'])
+@jwt_required()
 def delete_post(post_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete posts"}), 403
+
     post = Post.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
@@ -409,10 +413,7 @@ def delete_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post deleted"}), 200
 
-
-# -----------------------------
-# ADMIN MODERATION
-# -----------------------------
+#admin moderation
 @api.route('/admin/posts/pending', methods=['GET'])
 @jwt_required()
 def get_pending_posts():
@@ -492,9 +493,7 @@ def admin_delete_image(image_id):
     return jsonify({"msg": "Image deleted by admin"}), 200
 
 
-# -----------------------------
-# COMMENTS
-# -----------------------------
+#comments
 @api.route('/comments', methods=['GET'])
 def get_comments():
     comments = Comment.query.all()
@@ -562,7 +561,12 @@ def update_comment(comment_id):
 
 
 @api.route('/comments/<int:comment_id>', methods=['DELETE'])
+@jwt_required()
 def delete_comment(comment_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete comments"}), 403
+
     comment = Comment.query.get(comment_id)
     if not comment:
         return jsonify({"msg": "Comment not found"}), 404
@@ -572,9 +576,7 @@ def delete_comment(comment_id):
     return jsonify({"msg": "Comment deleted"}), 200
 
 
-# -----------------------------
-# IMAGES POST
-# -----------------------------
+#images posts
 @api.route('/images-post', methods=['GET'])
 def get_images():
     images = ImagePost.query.all()
@@ -633,7 +635,12 @@ def update_image(image_id):
 
 
 @api.route('/images-post/<int:image_id>', methods=['DELETE'])
+@jwt_required()
 def delete_image(image_id):
+    admin_id = get_admin_id_from_token()
+    if admin_id is None:
+        return jsonify({"msg": "Only admin can delete images"}), 403
+
     image = ImagePost.query.get(image_id)
     if not image:
         return jsonify({"msg": "Image not found"}), 404
@@ -642,10 +649,7 @@ def delete_image(image_id):
     db.session.commit()
     return jsonify({"msg": "Image deleted"}), 200
 
-
-# -----------------------------
-# AUTH USER / ADMIN
-# -----------------------------
+#auth user
 @api.route('/token', methods=['POST'])
 def create_token():
     email = request.json.get("email", None)
@@ -654,9 +658,9 @@ def create_token():
     if email is None or password is None:
         return jsonify({"msg": "Email and password are required"}), 400
 
-    user = User.query.filter_by(email=email, password=password).first()
+    user = User.query.filter_by(email=email).first()
 
-    if user is None:
+    if user is None or not check_password_hash(user.password, password):
         return jsonify({"msg": "Bad email or password"}), 401
 
     access_token = create_access_token(identity=str(user.id))
@@ -675,9 +679,9 @@ def create_admin_token():
     if email is None or password is None:
         return jsonify({"msg": "Email and password are required"}), 400
 
-    admin = AdminUser.query.filter_by(email=email, password=password).first()
+    admin = AdminUser.query.filter_by(email=email).first()
 
-    if admin is None:
+    if admin is None or not check_password_hash(admin.password, password):
         return jsonify({"msg": "Bad admin email or password"}), 401
 
     access_token = create_access_token(identity=f"admin:{admin.id}")
@@ -721,3 +725,23 @@ def get_me():
 
     return jsonify(user.serialize()), 200
 
+
+@api.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json or {}
+
+    email = data.get("email")
+    new_password = data.get("new_password")
+
+    if not email or not new_password:
+        return jsonify({"msg": "Email and new password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        return jsonify({"msg": "User not found"}), 404
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({"msg": "Password updated successfully"}), 200
